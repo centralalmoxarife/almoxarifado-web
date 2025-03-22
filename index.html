@@ -311,7 +311,12 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ idToken: idToken })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro na requisição: ${response.status} ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
                     .then(result => {
                         if (result.success) {
                             let userType = null;
@@ -349,18 +354,18 @@
                             updateMenu(userType);
                             spinner.style.display = 'none';
                         } else {
-                            alert('Erro na validação do login: ' + result.error);
+                            alert('Erro na validação do login: ' + JSON.stringify(result.error));
                             spinner.style.display = 'none';
                         }
                     })
                     .catch(error => {
-                        console.error('Erro na requisição:', error);
-                        alert('Erro ao validar o login. Tente novamente.');
+                        console.error('Erro na requisição ao backend:', error);
+                        alert('Erro ao validar o login no backend: ' + JSON.stringify(error));
                         spinner.style.display = 'none';
                     });
                 }).catch(error => {
-                    console.error('Erro ao fazer login:', error);
-                    alert('Erro ao fazer login. Tente novamente.');
+                    console.error('Erro ao fazer login com Google:', error);
+                    alert('Erro ao fazer login com Google: ' + JSON.stringify(error));
                     document.getElementById('login-spinner').style.display = 'none';
                 });
             });
