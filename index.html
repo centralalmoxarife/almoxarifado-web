@@ -32,8 +32,9 @@
             display: flex;
         }
         .company-logo {
-            max-width: 45px;
-            height: auto;
+            width: 30px; /* Tamanho fixo igual ao profile-logo */
+            height: 30px;
+            object-fit: contain; /* Mantém proporção */
         }
         .sidebar-toggle {
             background: none;
@@ -46,12 +47,22 @@
             position: relative;
             display: flex;
             align-items: center;
+            gap: 8px; /* Espaço entre ícone e nome */
         }
         .profile-logo {
             width: 30px;
             height: 30px;
             border-radius: 50%;
             cursor: pointer;
+        }
+        .profile-name {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            display: none; /* Escondido por padrão, visível após login */
+        }
+        .profile-name.active {
+            display: block;
         }
         .dropdown-menu {
             position: absolute;
@@ -206,9 +217,6 @@
         .sidebar.active {
             left: 0;
         }
-        .sidebar.active + .content {
-            margin-left: 200px;
-        }
         .menu a {
             display: block;
             color: white;
@@ -227,11 +235,14 @@
             padding: 20px;
             flex: 1;
             transition: margin-left 0.3s ease;
-            display: none;
             margin-top: 40px;
+            display: none;
         }
         .content.active {
             display: block;
+        }
+        .sidebar.active + .content {
+            margin-left: 200px;
         }
         .agenda {
             background-color: white;
@@ -255,7 +266,7 @@
             top: 0;
             left: 0;
             display: none;
-            visibility: visible; /* Garantindo visibilidade */
+            visibility: visible;
         }
         .carousel iframe.active {
             display: block;
@@ -319,7 +330,8 @@
                 max-width: 300px;
             }
             .company-logo {
-                max-width: 100px;
+                width: 30px; /* Mantém o mesmo tamanho no mobile */
+                height: 30px;
             }
             .carousel {
                 width: 100%;
@@ -331,16 +343,20 @@
             .carousel-btn.next {
                 right: 10px;
             }
+            .profile-name {
+                font-size: 12px; /* Reduz o tamanho da fonte no mobile */
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="topbar" id="topbar">
-        <img id="company-logo" class="company-logo" src="https://i.imgur.com/fNu6e0f.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/120?text=Logo+Indisponível';">
+        <img id="company-logo" class="company-logo" src="https://i.imgur.com/fNu6e0f.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/30?text=Logo+Indisponível';">
         <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Alternar barra lateral">☰</button>
         <div class="profile-container">
             <img id="profile-logo" class="profile-logo" src="" alt="Logo do Perfil" onclick="toggleDropdown()">
+            <span id="profile-name" class="profile-name"></span>
             <div class="dropdown-menu" id="dropdown-menu">
                 <a href="#" onclick="alert('Funcionalidade de perfil em desenvolvimento')">Perfil</a>
                 <a href="#" onclick="logout()">Sair</a>
@@ -436,6 +452,7 @@
                 const content = document.querySelector('#content');
                 const topbar = document.querySelector('#topbar');
                 const profileLogo = document.querySelector('#profile-logo');
+                const profileName = document.querySelector('#profile-name');
                 
                 loginScreen.style.display = 'none';
                 sidebar.classList.add('active');
@@ -443,6 +460,8 @@
                 topbar.classList.add('active');
                 profileLogo.src = users[selectedUser].profilePhoto;
                 profileLogo.onerror = () => profileLogo.src = 'https://via.placeholder.com/30?text=Logo+Indisponível';
+                profileName.textContent = users[selectedUser].name;
+                profileName.classList.add('active');
                 
                 updateMenu(selectedUser);
                 if (selectedUser === 'admin') {
@@ -480,12 +499,14 @@
                 const content = document.querySelector('#content');
                 const topbar = document.querySelector('#topbar');
                 const dropdownMenu = document.querySelector('#dropdown-menu');
+                const profileName = document.querySelector('#profile-name');
                 
                 loginScreen.style.display = 'flex';
                 sidebar.classList.remove('active');
                 content.classList.remove('active');
                 topbar.classList.remove('active');
                 dropdownMenu.classList.remove('active');
+                profileName.classList.remove('active');
                 
                 updateLoginScreen();
             } catch (error) {
@@ -503,7 +524,7 @@
         }
 
         function hideLoading() {
-            console.log('Iframe carregado com sucesso');
+            console.log(`Iframe ${currentIframe + 1} carregado com sucesso`);
             document.getElementById('loading-overlay').style.display = 'none';
             if (selectedUser === 'admin') {
                 document.querySelectorAll('.carousel iframe')[currentIframe].classList.add('active');
@@ -511,7 +532,7 @@
         }
 
         function handleIframeError() {
-            console.error('Erro ao carregar iframe');
+            console.error(`Erro ao carregar iframe ${currentIframe + 1}`);
             const overlay = document.getElementById('loading-overlay');
             overlay.innerHTML = '<span>Erro ao carregar o conteúdo.</span><button onclick="reloadCarousel()" style="padding: 5px 10px; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
             overlay.style.display = 'flex';
@@ -528,7 +549,9 @@
             iframe1.src = '';
             iframe2.src = '';
             iframe1.src = 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF';
-            iframe2.src = 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF';
+            setTimeout(() => {
+                iframe2.src = 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF';
+            }, 1000);
             document.getElementById('loading-overlay').style.display = 'flex';
             document.getElementById('loading-overlay').innerHTML = '<span>Carregando...</span><button onclick="reloadCarousel()" style="padding: 5px 10px; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
         }
@@ -537,6 +560,7 @@
             const iframes = document.querySelectorAll('.carousel iframe');
             iframes[currentIframe].classList.remove('active');
             currentIframe = (currentIframe - 1 + iframes.length) % iframes.length;
+            iframes[currentIframe].src = iframes[currentIframe].src;
             iframes[currentIframe].classList.add('active');
         }
 
@@ -544,6 +568,7 @@
             const iframes = document.querySelectorAll('.carousel iframe');
             iframes[currentIframe].classList.remove('active');
             currentIframe = (currentIframe + 1) % iframes.length;
+            iframes[currentIframe].src = iframes[currentIframe].src;
             iframes[currentIframe].classList.add('active');
         }
 
@@ -597,6 +622,7 @@
             const content = document.querySelector('#content');
             const topbar = document.querySelector('#topbar');
             const profileLogo = document.querySelector('#profile-logo');
+            const profileName = document.querySelector('#profile-name');
 
             if (token && username && users[username] && users[username].token === token) {
                 loginScreen.style.display = 'none';
@@ -605,6 +631,8 @@
                 topbar.classList.add('active');
                 profileLogo.src = users[username].profilePhoto;
                 profileLogo.onerror = () => profileLogo.src = 'https://via.placeholder.com/30?text=Logo+Indisponível';
+                profileName.textContent = users[username].name;
+                profileName.classList.add('active');
                 updateMenu(username);
                 selectedUser = username;
                 if (username === 'admin') {
@@ -617,14 +645,13 @@
                 sidebar.classList.remove('active');
                 content.classList.remove('active');
                 topbar.classList.remove('active');
+                profileName.classList.remove('active');
                 updateLoginScreen();
             }
 
             document.getElementById('sidebar-toggle').addEventListener('click', () => {
                 const sidebar = document.getElementById('sidebar');
-                const content = document.getElementById('content');
                 sidebar.classList.toggle('active');
-                content.classList.toggle('active');
             });
 
             document.querySelector('#dropdown-menu').addEventListener('keydown', (e) => {
