@@ -32,9 +32,9 @@
             display: flex;
         }
         .company-logo {
-            width: 30px; /* Tamanho fixo igual ao profile-logo */
+            width: 30px;
             height: 30px;
-            object-fit: contain; /* Mantém proporção */
+            object-fit: contain;
         }
         .sidebar-toggle {
             background: none;
@@ -47,7 +47,7 @@
             position: relative;
             display: flex;
             align-items: center;
-            gap: 8px; /* Espaço entre ícone e nome */
+            gap: 8px;
         }
         .profile-logo {
             width: 30px;
@@ -59,7 +59,7 @@
             color: white;
             font-size: 14px;
             font-weight: bold;
-            display: none; /* Escondido por padrão, visível após login */
+            display: none;
         }
         .profile-name.active {
             display: block;
@@ -237,6 +237,7 @@
             transition: margin-left 0.3s ease;
             margin-top: 40px;
             display: none;
+            box-sizing: border-box;
         }
         .content.active {
             display: block;
@@ -251,11 +252,15 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
+            width: 100%;
+            height: 100%;
         }
         .carousel {
             position: relative;
-            width: 600px;
-            height: 450px;
+            width: 100%; /* Ocupa toda a largura disponível */
+            height: calc(100vh - 80px); /* Altura total menos topbar e padding */
+            max-width: 1200px; /* Limite máximo para telas grandes */
+            max-height: 800px; /* Limite máximo para telas grandes */
             margin: 0 auto;
         }
         .carousel iframe {
@@ -294,10 +299,10 @@
             background: rgba(0, 0, 0, 0.9);
         }
         .carousel-btn.prev {
-            left: -50px;
+            left: 10px; /* Ajustado para ficar mais próximo da borda */
         }
         .carousel-btn.next {
-            right: -50px;
+            right: 10px; /* Ajustado para ficar mais próximo da borda */
         }
         .loading-overlay {
             position: absolute;
@@ -330,21 +335,20 @@
                 max-width: 300px;
             }
             .company-logo {
-                width: 30px; /* Mantém o mesmo tamanho no mobile */
+                width: 30px;
                 height: 30px;
             }
             .carousel {
-                width: 100%;
-                height: 300px;
+                height: calc(100vh - 80px); /* Mantém responsivo no mobile */
             }
             .carousel-btn.prev {
-                left: 10px;
+                left: 5px;
             }
             .carousel-btn.next {
-                right: 10px;
+                right: 5px;
             }
             .profile-name {
-                font-size: 12px; /* Reduz o tamanho da fonte no mobile */
+                font-size: 12px;
             }
         }
     </style>
