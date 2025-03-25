@@ -8,7 +8,7 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f0f0f0;
+            background: #f5f6f5;
             display: flex;
             height: 100vh;
             flex-direction: column;
@@ -19,7 +19,7 @@
             left: 0;
             width: 100%;
             height: 40px;
-            background-color: #2E8B57;
+            background-color: #1A2526;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -32,8 +32,8 @@
             display: flex;
         }
         .company-logo {
-            width: 30px;
-            height: 30px;
+            max-width: 80px;
+            height: auto;
             object-fit: contain;
         }
         .profile-container {
@@ -47,14 +47,14 @@
             height: 30px;
             border-radius: 50%;
             cursor: pointer;
-            order: 2; /* Coloca o ícone à direita */
+            order: 2;
         }
         .profile-name {
-            color: white;
+            color: #ffffff;
             font-size: 14px;
             font-weight: bold;
             display: none;
-            order: 1; /* Coloca o nome à esquerda */
+            order: 1;
         }
         .profile-name.active {
             display: block;
@@ -63,7 +63,7 @@
             position: absolute;
             top: 40px;
             right: 0;
-            background-color: #3e8e41;
+            background-color: #2C3E50;
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             display: none;
@@ -75,14 +75,14 @@
             display: flex;
         }
         .dropdown-menu a {
-            color: white;
+            color: #ffffff;
             padding: 8px;
             text-decoration: none;
             text-align: center;
             transition: background-color 0.3s;
         }
         .dropdown-menu a:hover, .dropdown-menu a:focus {
-            background-color: #45a049;
+            background-color: #34495E;
             outline: none;
         }
         .login-container {
@@ -96,7 +96,8 @@
             z-index: 1000;
         }
         .login-box {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(26, 37, 38, 0.9); /* Azul-marinho escuro com leve transparência */
+            backdrop-filter: blur(5px); /* Efeito de vidro fosco */
             padding: 30px;
             border-radius: 10px;
             text-align: center;
@@ -104,6 +105,18 @@
             max-width: 350px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             position: relative;
+            color: #ffffff; /* Texto branco para contraste */
+        }
+        .login-logos {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .login-logo {
+            max-width: 150px; /* Aumentado para ficar maior que os usuários */
+            height: auto;
+            object-fit: contain;
         }
         .user-list {
             display: flex;
@@ -117,21 +130,22 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            background-color: #2C3E50; /* Azul acinzentado escuro */
         }
         .user-option:hover {
-            background-color: #e0e0e0;
+            background-color: #34495E; /* Tom mais claro para hover */
         }
         .user-photo {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            border: 2px solid #0078d4;
+            border: 2px solid #ffffff; /* Borda branca para harmonia */
             margin-right: 15px;
             object-fit: cover;
         }
         .user-name {
             font-size: 18px;
-            color: #333;
+            color: #ffffff; /* Branco para contraste */
             font-weight: bold;
         }
         .login-form {
@@ -150,7 +164,7 @@
             text-align: left;
             margin-bottom: 5px;
             font-size: 14px;
-            color: #333;
+            color: #ffffff; /* Branco para contraste */
         }
         .login-box input {
             padding: 10px;
@@ -159,6 +173,8 @@
             font-size: 16px;
             width: 100%;
             box-sizing: border-box;
+            background-color: #ffffff; /* Fundo branco para o campo */
+            color: #333; /* Texto escuro no input */
         }
         .login-box button {
             padding: 10px;
@@ -171,18 +187,18 @@
             margin-top: 10px;
         }
         .login-box button[type="submit"] {
-            background-color: #0078d4;
+            background-color: #34495E; /* Azul acinzentado para harmonia */
             color: white;
         }
         .login-box button[type="submit"]:hover {
-            background-color: #005ea2;
+            background-color: #4A6076; /* Tom mais claro para hover */
         }
         .login-box button.back-btn {
-            background-color: #ccc;
-            color: #333;
+            background-color: #2C3E50; /* Azul acinzentado escuro */
+            color: #ffffff;
         }
         .login-box button.back-btn:hover {
-            background-color: #b3b3b3;
+            background-color: #34495E; /* Tom mais claro para hover */
         }
         .spinner {
             position: absolute;
@@ -190,7 +206,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #0078d4;
+            border-top: 4px solid #ffffff; /* Branco para harmonia */
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -203,7 +219,7 @@
             top: 40px;
             height: calc(100% - 40px);
             width: 200px;
-            background-color: #2E8B57;
+            background-color: #1A2526;
             padding: 15px;
             transition: left 0.3s ease;
             box-sizing: border-box;
@@ -219,11 +235,11 @@
             margin-bottom: 8px;
             text-decoration: none;
             border-radius: 5px;
-            background-color: #3e8e41;
+            background-color: #2C3E50;
             transition: background-color 0.3s;
         }
         .menu a:hover {
-            background-color: #45a049;
+            background-color: #34495E;
         }
         .content {
             margin-left: 0;
@@ -275,7 +291,7 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(26, 37, 38, 0.7);
             color: white;
             border: none;
             padding: 15px;
@@ -291,7 +307,7 @@
             transition: background 0.3s;
         }
         .carousel-btn:hover {
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(26, 37, 38, 0.9);
         }
         .carousel-btn.prev {
             left: 10px;
@@ -330,7 +346,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #2E8B57;
+            background: #1A2526;
             border: none;
             color: white;
             font-size: 24px;
@@ -347,7 +363,7 @@
             transition: background 0.3s;
         }
         .sidebar-toggle:hover {
-            background: #3e8e41;
+            background: #2C3E50;
         }
         @keyframes spin {
             0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -365,8 +381,11 @@
                 max-width: 300px;
             }
             .company-logo {
-                width: 30px;
-                height: 30px;
+                max-width: 60px;
+                height: auto;
+            }
+            .login-logo {
+                max-width: 120px; /* Ajustado para telas menores, mas ainda maior que os usuários */
             }
             .carousel, .calendar-container {
                 height: calc(100vh - 80px);
@@ -393,7 +412,7 @@
 <body>
 
     <div class="topbar" id="topbar">
-        <img id="company-logo" class="company-logo" src="https://i.imgur.com/UUAKcJl.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/30?text=Logo+Indisponível';">
+        <img id="company-logo" class="company-logo" src="https://i.imgur.com/UUAKcJl.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/80?text=Logo+Indisponível';">
         <div class="profile-container">
             <span id="profile-name" class="profile-name"></span>
             <img id="profile-logo" class="profile-logo" src="" alt="Logo do Perfil" onclick="toggleDropdown()">
@@ -408,6 +427,10 @@
 
     <div class="login-container" id="login-container" role="dialog" aria-label="Tela de Login">
         <div class="login-box">
+            <div class="login-logos">
+                <img class="login-logo" src="https://i.imgur.com/UUAKcJl.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/150?text=Logo+Indisponível';">
+                <img class="login-logo" src="https://i.imgur.com/WAh7GhF.png" alt="Logo da Empresa Parceira" onerror="this.src='https://via.placeholder.com/150?text=Logo+Indisponível';">
+            </div>
             <div class="user-list" id="user-list"></div>
             <div class="spinner" id="login-spinner"></div>
             <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
@@ -427,7 +450,7 @@
         <div class="agenda" id="agenda">
             <div class="loading-overlay" id="loading-overlay">
                 <span>Carregando...</span>
-                <button onclick="reloadCarousel()" style="padding: 5px 10px; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
+                <button onclick="reloadCarousel()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
             </div>
             <div class="carousel" id="carousel">
                 <button class="carousel-btn prev" onclick="prevIframe()" aria-label="Iframe anterior">❮</button>
@@ -582,7 +605,7 @@
         function handleIframeError() {
             console.error(`Erro ao carregar iframe ${currentIframe + 1}`);
             const overlay = document.getElementById('loading-overlay');
-            overlay.innerHTML = '<span>Erro ao carregar o conteúdo.</span><button onclick="reloadCarousel()" style="padding: 5px 10px; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+            overlay.innerHTML = '<span>Erro ao carregar o conteúdo.</span><button onclick="reloadCarousel()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
             overlay.style.display = 'flex';
         }
 
@@ -603,7 +626,7 @@
                 iframe2.src = 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF';
             }, 1000);
             document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-overlay').innerHTML = '<span>Carregando...</span><button onclick="reloadCarousel()" style="padding: 5px 10px; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+            document.getElementById('loading-overlay').innerHTML = '<span>Carregando...</span><button onclick="reloadCarousel()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
         }
 
         function prevIframe() {
