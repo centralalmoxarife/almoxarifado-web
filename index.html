@@ -36,13 +36,6 @@
             height: 30px;
             object-fit: contain;
         }
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
         .profile-container {
             position: relative;
             display: flex;
@@ -54,12 +47,14 @@
             height: 30px;
             border-radius: 50%;
             cursor: pointer;
+            order: 2; /* Coloca o ícone à direita */
         }
         .profile-name {
             color: white;
             font-size: 14px;
             font-weight: bold;
             display: none;
+            order: 1; /* Coloca o nome à esquerda */
         }
         .profile-name.active {
             display: block;
@@ -257,10 +252,10 @@
         }
         .carousel {
             position: relative;
-            width: 100%; /* Ocupa toda a largura disponível */
-            height: calc(100vh - 80px); /* Altura total menos topbar e padding */
-            max-width: 1200px; /* Limite máximo para telas grandes */
-            max-height: 800px; /* Limite máximo para telas grandes */
+            width: 100%;
+            height: calc(100vh - 80px);
+            max-width: 1200px;
+            max-height: 800px;
             margin: 0 auto;
         }
         .carousel iframe {
@@ -299,10 +294,10 @@
             background: rgba(0, 0, 0, 0.9);
         }
         .carousel-btn.prev {
-            left: 10px; /* Ajustado para ficar mais próximo da borda */
+            left: 10px;
         }
         .carousel-btn.next {
-            right: 10px; /* Ajustado para ficar mais próximo da borda */
+            right: 10px;
         }
         .loading-overlay {
             position: absolute;
@@ -318,6 +313,41 @@
             flex-direction: column;
             gap: 10px;
             z-index: 200;
+        }
+        .calendar-container {
+            width: 100%;
+            height: calc(100vh - 80px);
+            max-width: 1200px;
+            max-height: 800px;
+            margin: 0 auto;
+        }
+        .calendar-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .sidebar-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2E8B57;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+        .sidebar-toggle:hover {
+            background: #3e8e41;
         }
         @keyframes spin {
             0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -338,8 +368,8 @@
                 width: 30px;
                 height: 30px;
             }
-            .carousel {
-                height: calc(100vh - 80px); /* Mantém responsivo no mobile */
+            .carousel, .calendar-container {
+                height: calc(100vh - 80px);
             }
             .carousel-btn.prev {
                 left: 5px;
@@ -350,6 +380,13 @@
             .profile-name {
                 font-size: 12px;
             }
+            .sidebar-toggle {
+                bottom: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -357,16 +394,17 @@
 
     <div class="topbar" id="topbar">
         <img id="company-logo" class="company-logo" src="https://i.imgur.com/fNu6e0f.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/30?text=Logo+Indisponível';">
-        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Alternar barra lateral">☰</button>
         <div class="profile-container">
-            <img id="profile-logo" class="profile-logo" src="" alt="Logo do Perfil" onclick="toggleDropdown()">
             <span id="profile-name" class="profile-name"></span>
+            <img id="profile-logo" class="profile-logo" src="" alt="Logo do Perfil" onclick="toggleDropdown()">
             <div class="dropdown-menu" id="dropdown-menu">
                 <a href="#" onclick="alert('Funcionalidade de perfil em desenvolvimento')">Perfil</a>
                 <a href="#" onclick="logout()">Sair</a>
             </div>
         </div>
     </div>
+
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Alternar barra lateral">☰</button>
 
     <div class="login-container" id="login-container" role="dialog" aria-label="Tela de Login">
         <div class="login-box">
@@ -386,7 +424,7 @@
     </nav>
 
     <main class="content" id="content" role="main">
-        <div class="agenda">
+        <div class="agenda" id="agenda">
             <div class="loading-overlay" id="loading-overlay">
                 <span>Carregando...</span>
                 <button onclick="reloadCarousel()" style="padding: 5px 10px; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
@@ -430,6 +468,12 @@
             ]
         };
 
+        const calendarUrls = {
+            admin: 'https://calendar.google.com/calendar/embed?src=central.almoxarife%40gmail.com&ctz=America%2FBelem',
+            fundos: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem',
+            contratos: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem'
+        };
+
         let selectedUser = null;
         let currentIframe = 0;
 
@@ -471,7 +515,7 @@
                 if (selectedUser === 'admin') {
                     showCarousel();
                 } else {
-                    loadIframe();
+                    loadIframe(selectedUser);
                 }
                 spinner.style.display = 'none';
             }, 500);
@@ -543,6 +587,8 @@
         }
 
         function showCarousel() {
+            const carousel = document.getElementById('carousel');
+            carousel.style.display = 'block';
             const iframes = document.querySelectorAll('.carousel iframe');
             iframes[currentIframe].classList.add('active');
         }
@@ -576,17 +622,26 @@
             iframes[currentIframe].classList.add('active');
         }
 
-        function loadIframe() {
+        function loadIframe(username) {
+            const agenda = document.getElementById('agenda');
+            const carousel = document.getElementById('carousel');
+            
+            carousel.style.display = 'none';
+            agenda.innerHTML = '';
+
+            const calendarContainer = document.createElement('div');
+            calendarContainer.classList.add('calendar-container');
+
             const iframe = document.createElement('iframe');
             iframe.id = 'calendar-iframe';
-            iframe.src = 'https://calendar.google.com/calendar/embed?src=central.almoxarife%40gmail.com&ctz=America%2FBelem';
+            iframe.src = calendarUrls[username];
             iframe.scrolling = 'no';
-            iframe.onload = hideLoading;
-            iframe.onerror = handleIframeError;
-            iframe.style.width = '100%';
-            iframe.style.height = '600px';
-            iframe.style.border = 'none';
-            document.querySelector('.agenda').appendChild(iframe);
+            iframe.onload = () => console.log(`Calendário de ${username} carregado`);
+            iframe.onerror = () => console.error(`Erro ao carregar calendário de ${username}`);
+            iframe.setAttribute('frameborder', '0');
+
+            calendarContainer.appendChild(iframe);
+            agenda.appendChild(calendarContainer);
         }
 
         function updateLoginScreen() {
@@ -642,7 +697,7 @@
                 if (username === 'admin') {
                     showCarousel();
                 } else {
-                    loadIframe();
+                    loadIframe(username);
                 }
             } else {
                 loginScreen.style.display = 'flex';
