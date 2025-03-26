@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Profissional</title>
     <style>
+        /* Your existing CSS remains unchanged */
         body {
             margin: 0;
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -96,8 +97,8 @@
             z-index: 1000;
         }
         .login-box {
-            background: rgba(26, 37, 38, 0.9); /* Azul-marinho escuro com leve transparência */
-            backdrop-filter: blur(5px); /* Efeito de vidro fosco */
+            background: rgba(26, 37, 38, 0.9);
+            backdrop-filter: blur(5px);
             padding: 30px;
             border-radius: 10px;
             text-align: center;
@@ -105,7 +106,7 @@
             max-width: 460px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             position: relative;
-            color: #ffffff; /* Texto branco para contraste */
+            color: #ffffff;
         }
         .login-logos {
             display: flex;
@@ -114,7 +115,7 @@
             margin-bottom: 20px;
         }
         .login-logo {
-            max-width: 250px; /* Aumentado para ficar maior que os usuários */
+            max-width: 250px;
             height: auto;
             object-fit: contain;
         }
@@ -130,22 +131,22 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
-            background-color: #2c3e5059; /* Azul acinzentado escuro */
+            background-color: #2c3e5059;
         }
         .user-option:hover {
-            background-color: #34495E; /* Tom mais claro para hover */
+            background-color: #34495E;
         }
         .user-photo {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            border: 2px solid #ffffff; /* Borda branca para harmonia */
+            border: 2px solid #ffffff;
             margin-right: 15px;
             object-fit: cover;
         }
         .user-name {
             font-size: 18px;
-            color: #ffffff; /* Branco para contraste */
+            color: #ffffff;
             font-weight: bold;
         }
         .login-form {
@@ -164,7 +165,7 @@
             text-align: left;
             margin-bottom: 5px;
             font-size: 14px;
-            color: #ffffff; /* Branco para contraste */
+            color: #ffffff;
         }
         .login-box input {
             padding: 10px;
@@ -173,8 +174,8 @@
             font-size: 16px;
             width: 100%;
             box-sizing: border-box;
-            background-color: #ffffff; /* Fundo branco para o campo */
-            color: #333; /* Texto escuro no input */
+            background-color: #ffffff;
+            color: #333;
         }
         .login-box button {
             padding: 10px;
@@ -187,18 +188,18 @@
             margin-top: 10px;
         }
         .login-box button[type="submit"] {
-            background-color: #34495E; /* Azul acinzentado para harmonia */
+            background-color: #34495E;
             color: white;
         }
         .login-box button[type="submit"]:hover {
-            background-color: #4A6076; /* Tom mais claro para hover */
+            background-color: #4A6076;
         }
         .login-box button.back-btn {
-            background-color: #2C3E50; /* Azul acinzentado escuro */
+            background-color: #2C3E50;
             color: #ffffff;
         }
         .login-box button.back-btn:hover {
-            background-color: #34495E; /* Tom mais claro para hover */
+            background-color: #34495E;
         }
         .spinner {
             position: absolute;
@@ -206,7 +207,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #ffffff; /* Branco para harmonia */
+            border-top: 4px solid #ffffff;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -273,6 +274,7 @@
             max-width: 1200px;
             max-height: 800px;
             margin: 0 auto;
+            display: none;
         }
         .carousel iframe {
             width: 100%;
@@ -342,6 +344,15 @@
             height: 100%;
             border: 0;
         }
+        #form-iframe {
+            width: 100%;
+            border: 0;
+            display: none;
+            visibility: visible;
+        }
+        #form-iframe.active {
+            display: block;
+        }
         .sidebar-toggle {
             position: fixed;
             bottom: 20px;
@@ -385,7 +396,7 @@
                 height: auto;
             }
             .login-logo {
-                max-width: 120px; /* Ajustado para telas menores, mas ainda maior que os usuários */
+                max-width: 120px;
             }
             .carousel, .calendar-container {
                 height: calc(100vh - 80px);
@@ -450,7 +461,7 @@
         <div class="agenda" id="agenda">
             <div class="loading-overlay" id="loading-overlay">
                 <span>Carregando...</span>
-                <button onclick="reloadCarousel()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
+                <button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
             </div>
             <div class="carousel" id="carousel">
                 <button class="carousel-btn prev" onclick="prevIframe()" aria-label="Iframe anterior">❮</button>
@@ -475,30 +486,29 @@
 
         const menuOptions = {
             admin: [
-                { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF' },
-                { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF' },
-                { text: 'Usuários', url: 'usuarios.html' }
+                { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF', height: '800px' },
+                { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF', height: '800px' }
             ],
             contratos: [
-                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?usp=header' },
-                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?usp=header' },
-                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfiXU6abwQH-ETTAPFS5VAy_yy09ID6Mrf3jAjHx_sbISzwtQ/viewform?usp=header' }
+                { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
+                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true', height: '1200px' },
+                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true', height: '1000px' },
+                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfiXU6abwQH-ETTAPFS5VAy_yy09ID6Mrf3jAjHx_sbISzwtQ/viewform?embedded=true', height: '800px' }
             ],
             fundos: [
-                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?usp=header' },
-                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?usp=header' },
-                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSc6BUqLAW8STBcSy4Sad_RoMu8B1vx3Fh71_BGKRMOjI0N60g/viewform?usp=header' }
+                { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem' },
+                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true', height: '520px' },
+                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true', height: '520px' },
+                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSc6BUqLAW8STBcSy4Sad_RoMu8B1vx3Fh71_BGKRMOjI0N60g/viewform?embedded=true', height: '3731px' }
             ]
         };
 
         const calendarUrls = {
-            admin: 'https://calendar.google.com/calendar/embed?src=central.almoxarife%40gmail.com&ctz=America%2FBelem',
-            fundos: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem',
-            contratos: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem'
+            contratos: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem',
+            fundos: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem'
         };
 
         let selectedUser = null;
-        let currentIframe = 0;
 
         function handleLogin(event) {
             event.preventDefault();
@@ -535,10 +545,10 @@
                 profileName.classList.add('active');
                 
                 updateMenu(selectedUser);
-                if (selectedUser === 'admin') {
-                    showCarousel();
+                if (selectedUser === 'contratos' || selectedUser === 'fundos') {
+                    loadCalendar(selectedUser);
                 } else {
-                    loadIframe(selectedUser);
+                    loadForm(menuOptions[selectedUser][0].url, menuOptions[selectedUser][0].height);
                 }
                 spinner.style.display = 'none';
             }, 500);
@@ -548,17 +558,84 @@
             try {
                 const menu = document.querySelector('#menu');
                 menu.innerHTML = '';
+
                 menuOptions[username].forEach(option => {
                     const link = document.createElement('a');
-                    link.href = option.url;
+                    link.href = '#';
                     link.textContent = option.text;
                     link.setAttribute('role', 'menuitem');
                     link.setAttribute('aria-label', option.text);
+                    if (option.text === 'Agenda' && (username === 'contratos' || username === 'fundos')) {
+                        link.onclick = function () {
+                            loadCalendar(username);
+                        };
+                    } else {
+                        link.onclick = function () {
+                            loadForm(option.url, option.height);
+                        };
+                    }
                     menu.appendChild(link);
                 });
             } catch (error) {
                 console.error('Erro ao atualizar menu:', error);
             }
+        }
+
+        function loadForm(formUrl, height) {
+            let formIframe = document.getElementById('form-iframe');
+            const carousel = document.getElementById('carousel');
+            const agenda = document.getElementById('agenda');
+            const calendarContainer = document.querySelector('.calendar-container');
+
+            if (formIframe) {
+                formIframe.remove();
+            }
+            if (calendarContainer) {
+                calendarContainer.remove();
+            }
+
+            formIframe = document.createElement('iframe');
+            formIframe.id = 'form-iframe';
+            formIframe.src = formUrl;
+            formIframe.style.height = height || '800px';
+            formIframe.classList.add('active');
+            formIframe.onload = hideLoading;
+            formIframe.onerror = handleIframeError;
+            agenda.appendChild(formIframe);
+
+            carousel.style.display = 'none';
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function loadCalendar(username) {
+            const agenda = document.getElementById('agenda');
+            const carousel = document.getElementById('carousel');
+            const formIframe = document.getElementById('form-iframe');
+            const calendarContainer = document.querySelector('.calendar-container');
+
+            if (formIframe) {
+                formIframe.remove();
+            }
+            if (calendarContainer) {
+                calendarContainer.remove();
+            }
+
+            const newCalendarContainer = document.createElement('div');
+            newCalendarContainer.classList.add('calendar-container');
+
+            const iframe = document.createElement('iframe');
+            iframe.id = 'calendar-iframe';
+            iframe.src = calendarUrls[username];
+            iframe.scrolling = 'no';
+            iframe.onload = hideLoading;
+            iframe.onerror = handleIframeError;
+            iframe.setAttribute('frameborder', '0');
+
+            newCalendarContainer.appendChild(iframe);
+            agenda.appendChild(newCalendarContainer);
+
+            carousel.style.display = 'none';
+            document.getElementById('loading-overlay').style.display = 'flex';
         }
 
         function logout() {
@@ -595,76 +672,26 @@
         }
 
         function hideLoading() {
-            console.log(`Iframe ${currentIframe + 1} carregado com sucesso`);
+            console.log('Conteúdo carregado com sucesso');
             document.getElementById('loading-overlay').style.display = 'none';
-            if (selectedUser === 'admin') {
-                document.querySelectorAll('.carousel iframe')[currentIframe].classList.add('active');
-            }
         }
 
         function handleIframeError() {
-            console.error(`Erro ao carregar iframe ${currentIframe + 1}`);
+            console.error('Erro ao carregar conteúdo');
             const overlay = document.getElementById('loading-overlay');
-            overlay.innerHTML = '<span>Erro ao carregar o conteúdo.</span><button onclick="reloadCarousel()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+            overlay.innerHTML = '<span>Erro ao carregar o conteúdo.</span><button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
             overlay.style.display = 'flex';
         }
 
-        function showCarousel() {
-            const carousel = document.getElementById('carousel');
-            carousel.style.display = 'block';
-            const iframes = document.querySelectorAll('.carousel iframe');
-            iframes[currentIframe].classList.add('active');
-        }
-
-        function reloadCarousel() {
-            const iframe1 = document.getElementById('iframe1');
-            const iframe2 = document.getElementById('iframe2');
-            iframe1.src = '';
-            iframe2.src = '';
-            iframe1.src = 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF';
-            setTimeout(() => {
-                iframe2.src = 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF';
-            }, 1000);
-            document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-overlay').innerHTML = '<span>Carregando...</span><button onclick="reloadCarousel()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
-        }
-
-        function prevIframe() {
-            const iframes = document.querySelectorAll('.carousel iframe');
-            iframes[currentIframe].classList.remove('active');
-            currentIframe = (currentIframe - 1 + iframes.length) % iframes.length;
-            iframes[currentIframe].src = iframes[currentIframe].src;
-            iframes[currentIframe].classList.add('active');
-        }
-
-        function nextIframe() {
-            const iframes = document.querySelectorAll('.carousel iframe');
-            iframes[currentIframe].classList.remove('active');
-            currentIframe = (currentIframe + 1) % iframes.length;
-            iframes[currentIframe].src = iframes[currentIframe].src;
-            iframes[currentIframe].classList.add('active');
-        }
-
-        function loadIframe(username) {
-            const agenda = document.getElementById('agenda');
-            const carousel = document.getElementById('carousel');
-            
-            carousel.style.display = 'none';
-            agenda.innerHTML = '';
-
-            const calendarContainer = document.createElement('div');
-            calendarContainer.classList.add('calendar-container');
-
-            const iframe = document.createElement('iframe');
-            iframe.id = 'calendar-iframe';
-            iframe.src = calendarUrls[username];
-            iframe.scrolling = 'no';
-            iframe.onload = () => console.log(`Calendário de ${username} carregado`);
-            iframe.onerror = () => console.error(`Erro ao carregar calendário de ${username}`);
-            iframe.setAttribute('frameborder', '0');
-
-            calendarContainer.appendChild(iframe);
-            agenda.appendChild(calendarContainer);
+        function reloadContent() {
+            const formIframe = document.getElementById('form-iframe');
+            const calendarIframe = document.getElementById('calendar-iframe');
+            if (formIframe) {
+                formIframe.src = formIframe.src;
+            } else if (calendarIframe) {
+                calendarIframe.src = calendarIframe.src;
+            }
+            document.getElementById('loading-overlay').innerHTML = '<span>Carregando...</span><button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
         }
 
         function updateLoginScreen() {
@@ -717,10 +744,10 @@
                 profileName.classList.add('active');
                 updateMenu(username);
                 selectedUser = username;
-                if (username === 'admin') {
-                    showCarousel();
+                if (username === 'contratos' || username === 'fundos') {
+                    loadCalendar(username);
                 } else {
-                    loadIframe(username);
+                    loadForm(menuOptions[username][0].url, menuOptions[username][0].height);
                 }
             } else {
                 loginScreen.style.display = 'flex';
