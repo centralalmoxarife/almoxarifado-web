@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Profissional</title>
     <style>
-        /* Your existing CSS remains unchanged */
         body {
             margin: 0;
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -191,14 +190,14 @@
             background-color: #34495E;
             color: white;
         }
-        .login-box button[type="submit"]:hover {
+        .login-box button[type="submit"].btn-hover:hover {
             background-color: #4A6076;
         }
         .login-box button.back-btn {
             background-color: #2C3E50;
             color: #ffffff;
         }
-        .login-box button.back-btn:hover {
+        .login-box button.back-btn.btn-hover:hover {
             background-color: #34495E;
         }
         .spinner {
@@ -239,7 +238,7 @@
             background-color: #2C3E50;
             transition: background-color 0.3s;
         }
-        .menu a:hover {
+        .menu a.btn-hover:hover {
             background-color: #34495E;
         }
         .content {
@@ -250,6 +249,8 @@
             margin-top: 40px;
             display: none;
             box-sizing: border-box;
+            height: calc(100vh - 40px); /* Ajuste para ocupar toda a altura menos a topbar */
+            overflow: hidden; /* Evita rolagem na página principal */
         }
         .content.active {
             display: block;
@@ -265,20 +266,19 @@
             position: relative;
             overflow: hidden;
             width: 100%;
-            height: 100%;
+            height: 100%; /* Ocupa toda a altura do contêiner pai */
         }
         .carousel {
             position: relative;
             width: 100%;
-            height: calc(100vh - 80px);
+            height: 100%; /* Ajustado para ocupar toda a altura disponível */
             max-width: 1200px;
-            max-height: 800px;
             margin: 0 auto;
             display: none;
         }
         .carousel iframe {
             width: 100%;
-            height: 100%;
+            height: 100%; /* Ajustado para ocupar toda a altura disponível */
             border: 0;
             position: absolute;
             top: 0;
@@ -308,7 +308,7 @@
             justify-content: center;
             transition: background 0.3s;
         }
-        .carousel-btn:hover {
+        .carousel-btn.btn-hover:hover {
             background: rgba(26, 37, 38, 0.9);
         }
         .carousel-btn.prev {
@@ -334,21 +334,22 @@
         }
         .calendar-container {
             width: 100%;
-            height: calc(100vh - 80px);
+            height: 100%; /* Ajustado para ocupar toda a altura disponível */
             max-width: 1200px;
-            max-height: 800px;
             margin: 0 auto;
         }
         .calendar-container iframe {
             width: 100%;
-            height: 100%;
+            height: 100%; /* Ajustado para ocupar toda a altura disponível */
             border: 0;
         }
         #form-iframe {
             width: 100%;
+            height: 100%; /* Ajustado para ocupar toda a altura disponível */
             border: 0;
             display: none;
             visibility: visible;
+            overflow: auto; /* Permite rolagem interna se necessário */
         }
         #form-iframe.active {
             display: block;
@@ -373,8 +374,11 @@
             z-index: 1000;
             transition: background 0.3s;
         }
-        .sidebar-toggle:hover {
+        .sidebar-toggle.btn-hover:hover {
             background: #2C3E50;
+        }
+        .btn-hover:hover {
+            background-color: #34495E;
         }
         @keyframes spin {
             0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -399,7 +403,7 @@
                 max-width: 120px;
             }
             .carousel, .calendar-container {
-                height: calc(100vh - 80px);
+                height: 100%; /* Mantém adaptação em telas menores */
             }
             .carousel-btn.prev {
                 left: 5px;
@@ -434,7 +438,7 @@
         </div>
     </div>
 
-    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Alternar barra lateral">☰</button>
+    <button class="sidebar-toggle btn-hover" id="sidebar-toggle" aria-label="Alternar barra lateral">☰</button>
 
     <div class="login-container" id="login-container" role="dialog" aria-label="Tela de Login">
         <div class="login-box">
@@ -447,8 +451,8 @@
             <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
                 <label for="password">Senha:</label>
                 <input type="password" id="password" name="password" placeholder="Digite sua senha" required aria-label="Senha">
-                <button type="submit">Entrar</button>
-                <button type="button" class="back-btn" onclick="updateLoginScreen()">Voltar</button>
+                <button type="submit" class="btn-hover">Entrar</button>
+                <button type="button" class="back-btn btn-hover" onclick="updateLoginScreen()">Voltar</button>
             </form>
         </div>
     </div>
@@ -464,10 +468,10 @@
                 <button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
             </div>
             <div class="carousel" id="carousel">
-                <button class="carousel-btn prev" onclick="prevIframe()" aria-label="Iframe anterior">❮</button>
+                <button class="carousel-btn prev btn-hover" onclick="prevIframe()" aria-label="Iframe anterior">❮</button>
                 <iframe id="iframe1" src="https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" onload="hideLoading()" onerror="handleIframeError()"></iframe>
                 <iframe id="iframe2" src="https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" onload="hideLoading()" onerror="handleIframeError()"></iframe>
-                <button class="carousel-btn next" onclick="nextIframe()" aria-label="Próximo iframe">❯</button>
+                <button class="carousel-btn next btn-hover" onclick="nextIframe()" aria-label="Próximo iframe">❯</button>
             </div>
         </div>
     </main>
@@ -486,20 +490,22 @@
 
         const menuOptions = {
             admin: [
-                { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF', height: '800px' },
-                { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF', height: '800px' }
+                { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF' },
+                { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF' }
             ],
             contratos: [
                 { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
-                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true', height: '1200px' },
-                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true', height: '1000px' },
-                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfiXU6abwQH-ETTAPFS5VAy_yy09ID6Mrf3jAjHx_sbISzwtQ/viewform?embedded=true', height: '800px' }
+                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true' },
+                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true' },
+                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfiXU6abwQH-ETTAPFS5VAy_yy09ID6Mrf3jAjHx_sbISzwtQ/viewform?embedded=true' },
+                { text: 'Link de Formulário', url: 'https://lookerstudio.google.com/embed/reporting/9cfa6179-25ab-4a4c-98e4-9165a4b17113/page/1hOFF' },
+                { text: 'Últimos Lançamentos', url: 'https://lookerstudio.google.com/embed/reporting/22200872-115a-41e1-bb63-2e88bbbdea32/page/VJNFF' }
             ],
             fundos: [
                 { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem' },
-                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true', height: '520px' },
-                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true', height: '520px' },
-                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSc6BUqLAW8STBcSy4Sad_RoMu8B1vx3Fh71_BGKRMOjI0N60g/viewform?embedded=true', height: '3731px' }
+                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true' },
+                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true' },
+                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSc6BUqLAW8STBcSy4Sad_RoMu8B1vx3Fh71_BGKRMOjI0N60g/viewform?embedded=true' }
             ]
         };
 
@@ -548,7 +554,7 @@
                 if (selectedUser === 'contratos' || selectedUser === 'fundos') {
                     loadCalendar(selectedUser);
                 } else {
-                    loadForm(menuOptions[selectedUser][0].url, menuOptions[selectedUser][0].height);
+                    loadForm(menuOptions[selectedUser][0].url);
                 }
                 spinner.style.display = 'none';
             }, 500);
@@ -563,6 +569,7 @@
                     const link = document.createElement('a');
                     link.href = '#';
                     link.textContent = option.text;
+                    link.classList.add('btn-hover');
                     link.setAttribute('role', 'menuitem');
                     link.setAttribute('aria-label', option.text);
                     if (option.text === 'Agenda' && (username === 'contratos' || username === 'fundos')) {
@@ -571,7 +578,7 @@
                         };
                     } else {
                         link.onclick = function () {
-                            loadForm(option.url, option.height);
+                            loadForm(option.url);
                         };
                     }
                     menu.appendChild(link);
@@ -581,7 +588,7 @@
             }
         }
 
-        function loadForm(formUrl, height) {
+        function loadForm(formUrl) {
             let formIframe = document.getElementById('form-iframe');
             const carousel = document.getElementById('carousel');
             const agenda = document.getElementById('agenda');
@@ -596,8 +603,8 @@
 
             formIframe = document.createElement('iframe');
             formIframe.id = 'form-iframe';
+            formIframe.loading = 'lazy';
             formIframe.src = formUrl;
-            formIframe.style.height = height || '800px';
             formIframe.classList.add('active');
             formIframe.onload = hideLoading;
             formIframe.onerror = handleIframeError;
@@ -625,6 +632,7 @@
 
             const iframe = document.createElement('iframe');
             iframe.id = 'calendar-iframe';
+            iframe.loading = 'lazy';
             iframe.src = calendarUrls[username];
             iframe.scrolling = 'no';
             iframe.onload = hideLoading;
@@ -747,7 +755,7 @@
                 if (username === 'contratos' || username === 'fundos') {
                     loadCalendar(username);
                 } else {
-                    loadForm(menuOptions[username][0].url, menuOptions[username][0].height);
+                    loadForm(menuOptions[username][0].url);
                 }
             } else {
                 loginScreen.style.display = 'flex';
