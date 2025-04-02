@@ -249,8 +249,8 @@
             margin-top: 40px;
             display: none;
             box-sizing: border-box;
-            height: calc(100vh - 40px); /* Ajuste para ocupar toda a altura menos a topbar */
-            overflow: hidden; /* Evita rolagem na página principal */
+            height: calc(100vh - 40px);
+            overflow: hidden;
         }
         .content.active {
             display: block;
@@ -266,19 +266,19 @@
             position: relative;
             overflow: hidden;
             width: 100%;
-            height: 100%; /* Ocupa toda a altura do contêiner pai */
+            height: 100%;
         }
         .carousel {
             position: relative;
             width: 100%;
-            height: 100%; /* Ajustado para ocupar toda a altura disponível */
+            height: 100%;
             max-width: 1200px;
             margin: 0 auto;
             display: none;
         }
         .carousel iframe {
             width: 100%;
-            height: 100%; /* Ajustado para ocupar toda a altura disponível */
+            height: 100%;
             border: 0;
             position: absolute;
             top: 0;
@@ -334,24 +334,22 @@
         }
         .calendar-container {
             width: 100%;
-            height: 100%; /* Ajustado para ocupar toda a altura disponível */
+            height: 100%;
             max-width: 1200px;
             margin: 0 auto;
         }
         .calendar-container iframe {
             width: 100%;
-            height: 100%; /* Ajustado para ocupar toda a altura disponível */
+            height: 100%;
             border: 0;
         }
         #form-iframe {
             width: 100%;
-            height: 100%; /* Ajustado para ocupar toda a altura disponível */
+            height: 100%;
             border: 0;
             display: none;
             visibility: visible;
-            overflow: auto; /* Permite rolag образом
-
-em interna se necessário */
+            overflow: auto;
         }
         #form-iframe.active {
             display: block;
@@ -405,7 +403,7 @@ em interna se necessário */
                 max-width: 120px;
             }
             .carousel, .calendar-container {
-                height: 100%; /* Mantém adaptação em telas menores */
+                height: 100%;
             }
             .carousel-btn.prev {
                 left: 5px;
@@ -507,8 +505,9 @@ em interna se necessário */
                 { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem' },
                 { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true' },
                 { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true' },
-                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSc6BUqLAW8STBcSy4Sad_RoMu8B1vx3Fh71_BGKRMOjI0N60g/viewform?embedded=true' },
-                { text: 'Últimos Lançamentos', url: 'https://lookerstudio.google.com/embed/reporting/1678d3b9-1aa3-4bc2-b5e3-faa0d7cc2b3c/page/7tVFF' }
+                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSc6BUqLAW8STBcSy4Sad_RoMu8B1vx3Fh71_BGKRMojI0N60g/viewform?embedded=true' },
+                { text: 'Últimos Lançamentos', url: 'https://lookerstudio.google.com/embed/reporting/1678d3b9-1aa3-4bc2-b5e3-faa0d7cc2b3c/page/7tVFF' },
+                { text: 'Link de Formulário', url: 'https://lookerstudio.google.com/embed/reporting/fdce6c70-86c6-4615-b703-59befa76cc78/page/CVbFF' }
             ]
         };
 
