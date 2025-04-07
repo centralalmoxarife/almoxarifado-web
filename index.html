@@ -766,7 +766,7 @@
                         if (row.length < 10) continue;
 
                         const link = row[9] ? row[9].trim() : '';
-                        if (!link || link === '""') continue; // Oculta linhas sem link válido
+                        if (!link || link === '""') continue;
 
                         const tr = document.createElement('tr');
                         for (let j = 0; j < 10; j++) {
@@ -852,8 +852,13 @@
         }
 
         function updateLoginScreen() {
+            console.log('Atualizando tela de login...');
             const userList = document.getElementById('user-list');
             const loginForm = document.getElementById('login-form');
+            if (!userList || !loginForm) {
+                console.error('Elementos #user-list ou #login-form não encontrados');
+                return;
+            }
             userList.innerHTML = '';
             loginForm.classList.remove('active');
             selectedUser = null;
@@ -878,9 +883,11 @@
                 };
                 userList.appendChild(userDiv);
             });
+            console.log('Tela de login atualizada com', Object.keys(users).length, 'usuários');
         }
 
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM carregado, verificando estado de login...');
             const token = localStorage.getItem('userToken');
             const username = localStorage.getItem('username');
             const loginScreen = document.querySelector('#login-container');
@@ -890,9 +897,8 @@
             const profileLogo = document.querySelector('#profile-logo');
             const profileName = document.querySelector('#profile-name');
 
-Following from previous code:
-
             if (token && username && users[username] && users[username].token === token) {
+                console.log('Usuário já logado:', username);
                 loginScreen.style.display = 'none';
                 sidebar.classList.add('active');
                 content.classList.add('active');
@@ -909,6 +915,7 @@ Following from previous code:
                     loadForm(menuOptions[username][0].url);
                 }
             } else {
+                console.log('Nenhum usuário logado, exibindo tela de login');
                 loginScreen.style.display = 'flex';
                 sidebar.classList.remove('active');
                 content.classList.remove('active');
@@ -934,7 +941,7 @@ Following from previous code:
                     e.preventDefault();
                 }
             });
-        };
+        });
 
         // Funções do carrossel (necessárias para o admin)
         let currentIframe = 0;
