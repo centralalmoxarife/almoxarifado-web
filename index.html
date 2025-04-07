@@ -354,6 +354,35 @@
         #form-iframe.active {
             display: block;
         }
+        .docs-container {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            display: none;
+        }
+        .docs-container.active {
+            display: block;
+        }
+        .docs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .docs-table th, .docs-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .docs-table th {
+            background-color: #f2f2f2;
+        }
+        .docs-table a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .docs-table a:hover {
+            text-decoration: underline;
+        }
         .sidebar-toggle {
             position: fixed;
             bottom: 20px;
@@ -473,6 +502,18 @@
                 <iframe id="iframe2" src="https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" onload="hideLoading()" onerror="handleIframeError()"></iframe>
                 <button class="carousel-btn next btn-hover" onclick="nextIframe()" aria-label="Próximo iframe">❯</button>
             </div>
+            <div class="docs-container" id="docs-container">
+                <h2>Lista de Documentos</h2>
+                <table class="docs-table" id="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Nome do Documento</th>
+                            <th>Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="docs-body"></tbody>
+                </table>
+            </div>
         </div>
     </main>
 
@@ -491,7 +532,8 @@
         const menuOptions = {
             admin: [
                 { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF' },
-                { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF' }
+                { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF' },
+                { text: 'Documentos', action: 'loadDocuments' } // Adicionado aqui no menu lateral esquerdo
             ],
             contratos: [
                 { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
@@ -578,6 +620,10 @@
                         link.onclick = function () {
                             loadCalendar(username);
                         };
+                    } else if (option.action === 'loadDocuments') {
+                        link.onclick = function () {
+                            loadDocuments();
+                        };
                     } else {
                         link.onclick = function () {
                             loadForm(option.url);
@@ -595,13 +641,11 @@
             const carousel = document.getElementById('carousel');
             const agenda = document.getElementById('agenda');
             const calendarContainer = document.querySelector('.calendar-container');
+            const docsContainer = document.getElementById('docs-container');
 
-            if (formIframe) {
-                formIframe.remove();
-            }
-            if (calendarContainer) {
-                calendarContainer.remove();
-            }
+            if (formIframe) formIframe.remove();
+            if (calendarContainer) calendarContainer.remove();
+            if (docsContainer) docsContainer.classList.remove('active');
 
             formIframe = document.createElement('iframe');
             formIframe.id = 'form-iframe';
@@ -621,13 +665,11 @@
             const carousel = document.getElementById('carousel');
             const formIframe = document.getElementById('form-iframe');
             const calendarContainer = document.querySelector('.calendar-container');
+            const docsContainer = document.getElementById('docs-container');
 
-            if (formIframe) {
-                formIframe.remove();
-            }
-            if (calendarContainer) {
-                calendarContainer.remove();
-            }
+            if (formIframe) formIframe.remove();
+            if (calendarContainer) calendarContainer.remove();
+            if (docsContainer) docsContainer.classList.remove('active');
 
             const newCalendarContainer = document.createElement('div');
             newCalendarContainer.classList.add('calendar-container');
@@ -646,6 +688,49 @@
 
             carousel.style.display = 'none';
             document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        async function loadDocuments() {
+            const agenda = document.getElementById('agenda');
+            const carousel = document.getElementById('carousel');
+            const formIframe = document.getElementById('form-iframe');
+            const calendarContainer = document.querySelector('.calendar-container');
+            const docsContainer = document.getElementById('docs-container');
+            const docsBody = document.getElementById('docs-body');
+            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pub?gid=1850767781&single=true&output=csv';
+
+            if (formIframe) formIframe.remove();
+            if (calendarContainer) calendarContainer.remove();
+            carousel.style.display = 'none';
+            docsContainer.classList.add('active');
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            try {
+                const response = await fetch(spreadsheetUrl);
+                const csvText = await response.text();
+                const rows = csvText.split('\n').map(row => row.split(','));
+                const dataRows = rows.slice(1);
+
+                docsBody.innerHTML = '';
+
+                dataRows.forEach(row => {
+                    if (row.length >= 2) {
+                        const nome = row[0];
+                        const link = row[1];
+                        const tableRow = document.createElement('tr');
+                        tableRow.innerHTML = `
+                            <td>${nome}</td>
+                            <td><a href="${link}" target="_blank">Abrir Documento</a></td>
+                        `;
+                        docsBody.appendChild(tableRow);
+                    }
+                });
+                hideLoading();
+            } catch (error) {
+                console.error('Erro ao carregar os dados:', error);
+                docsBody.innerHTML = '<tr><td colspan="2">Erro ao carregar os dados.</td></tr>';
+                handleIframeError();
+            }
         }
 
         function logout() {
@@ -696,10 +781,13 @@
         function reloadContent() {
             const formIframe = document.getElementById('form-iframe');
             const calendarIframe = document.getElementById('calendar-iframe');
+            const docsContainer = document.getElementById('docs-container');
             if (formIframe) {
                 formIframe.src = formIframe.src;
             } else if (calendarIframe) {
                 calendarIframe.src = calendarIframe.src;
+            } else if (docsContainer.classList.contains('active')) {
+                loadDocuments();
             }
             document.getElementById('loading-overlay').innerHTML = '<span>Carregando...</span><button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
         }
