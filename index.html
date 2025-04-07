@@ -551,6 +551,19 @@
 
         let selectedUser = null;
 
+        function clearAgendaContent() {
+            const agenda = document.getElementById('agenda');
+            const formIframe = document.getElementById('form-iframe');
+            const calendarContainer = document.querySelector('.calendar-container');
+            const tableContainer = document.querySelector('.table-container');
+            const carousel = document.getElementById('carousel');
+
+            if (formIframe) formIframe.remove();
+            if (calendarContainer) calendarContainer.remove();
+            if (tableContainer) tableContainer.remove();
+            carousel.style.display = 'none';
+        }
+
         function handleLogin(event) {
             event.preventDefault();
             const password = document.getElementById('password').value;
@@ -628,19 +641,10 @@
         }
 
         function loadForm(formUrl) {
-            let formIframe = document.getElementById('form-iframe');
-            const carousel = document.getElementById('carousel');
+            clearAgendaContent();
             const agenda = document.getElementById('agenda');
-            const calendarContainer = document.querySelector('.calendar-container');
 
-            if (formIframe) {
-                formIframe.remove();
-            }
-            if (calendarContainer) {
-                calendarContainer.remove();
-            }
-
-            formIframe = document.createElement('iframe');
+            const formIframe = document.createElement('iframe');
             formIframe.id = 'form-iframe';
             formIframe.loading = 'lazy';
             formIframe.src = formUrl;
@@ -649,22 +653,12 @@
             formIframe.onerror = handleIframeError;
             agenda.appendChild(formIframe);
 
-            carousel.style.display = 'none';
             document.getElementById('loading-overlay').style.display = 'flex';
         }
 
         function loadCalendar(username) {
+            clearAgendaContent();
             const agenda = document.getElementById('agenda');
-            const carousel = document.getElementById('carousel');
-            const formIframe = document.getElementById('form-iframe');
-            const calendarContainer = document.querySelector('.calendar-container');
-
-            if (formIframe) {
-                formIframe.remove();
-            }
-            if (calendarContainer) {
-                calendarContainer.remove();
-            }
 
             const newCalendarContainer = document.createElement('div');
             newCalendarContainer.classList.add('calendar-container');
@@ -681,7 +675,6 @@
             newCalendarContainer.appendChild(iframe);
             agenda.appendChild(newCalendarContainer);
 
-            carousel.style.display = 'none';
             document.getElementById('loading-overlay').style.display = 'flex';
         }
 
@@ -716,14 +709,8 @@
         }
 
         function loadDocumentosSaida() {
+            clearAgendaContent();
             const agenda = document.getElementById('agenda');
-            const carousel = document.getElementById('carousel');
-            const formIframe = document.getElementById('form-iframe');
-            const calendarContainer = document.querySelector('.calendar-container');
-
-            if (formIframe) formIframe.remove();
-            if (calendarContainer) calendarContainer.remove();
-            carousel.style.display = 'none';
 
             const tableContainer = document.createElement('div');
             tableContainer.className = 'table-container';
@@ -738,8 +725,6 @@
                             <th>Quantidade</th>
                             <th>Embalagem</th>
                             <th>Secretária/Dep</th>
-                            <th>Responsável pela Saída</th>
-                            <th>Endereço de e-mail</th>
                             <th>Link do Documento</th>
                         </tr>
                     </thead>
@@ -761,34 +746,37 @@
                     const tbody = document.getElementById('tableBody');
                     tbody.innerHTML = '';
 
-                    for (let i = 1; i < rows.length; i++) {
-                        const row = rows[i];
-                        if (row.length < 10) continue;
-
+                    // Filtra e ordena as linhas
+                    const filteredRows = rows.slice(1).filter(row => {
                         const link = row[9] ? row[9].trim() : '';
-                        if (!link || link === '""') continue;
+                        return link && link !== '""';
+                    });
+                    filteredRows.sort((a, b) => b[0].localeCompare(a[0])); // Ordena pela coluna 0 (Carimbo de data/hora) em ordem decrescente
 
+                    filteredRows.forEach(row => {
                         const tr = document.createElement('tr');
-                        for (let j = 0; j < 10; j++) {
+                        const visibleColumns = [0, 1, 2, 3, 4, 5, 6, 9]; // Exclui 7 (Responsável) e 8 (E-mail)
+                        visibleColumns.forEach(index => {
                             const td = document.createElement('td');
-                            if (j === 9 && link) {
+                            if (index === 9) { // Coluna do link
+                                const link = row[index].trim();
                                 const a = document.createElement('a');
                                 a.href = link;
                                 a.textContent = 'Abrir Documento';
                                 a.target = '_blank';
                                 td.appendChild(a);
                             } else {
-                                td.textContent = row[j] || '-';
+                                td.textContent = row[index] || '-';
                             }
                             tr.appendChild(td);
-                        }
+                        });
                         tbody.appendChild(tr);
-                    }
+                    });
                     hideLoading();
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    document.getElementById('tableBody').innerHTML = '<tr><td colspan="10">Erro ao carregar os dados.</td></tr>';
+                    document.getElementById('tableBody').innerHTML = '<tr><td colspan="8">Erro ao carregar os dados.</td></tr>';
                     handleIframeError();
                 });
         }
