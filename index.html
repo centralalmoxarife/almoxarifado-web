@@ -499,7 +499,8 @@
                 { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true' },
                 { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfiXU6abwQH-ETTAPFS5VAy_yy09ID6Mrf3jAjHx_sbISzwtQ/viewform?embedded=true' },
                 { text: 'Link de Formulário', url: 'https://lookerstudio.google.com/embed/reporting/9cfa6179-25ab-4a4c-98e4-9165a4b17113/page/1hOFF' },
-                { text: 'Últimos Lançamentos', url: 'https://lookerstudio.google.com/embed/reporting/22200872-115a-41e1-bb63-2e88bbbdea32/page/VJNFF' }
+                { text: 'Últimos Lançamentos', url: 'https://lookerstudio.google.com/embed/reporting/22200872-115a-41e1-bb63-2e88bbbdea32/page/VJNFF' },
+                { text: 'Documento de Saída', url: '#', action: 'loadDocumentosSaida' }
             ],
             fundos: [
                 { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem' },
@@ -578,6 +579,10 @@
                         link.onclick = function () {
                             loadCalendar(username);
                         };
+                    } else if (option.action === 'loadDocumentosSaida') {
+                        link.onclick = function () {
+                            loadDocumentosSaida();
+                        };
                     } else {
                         link.onclick = function () {
                             loadForm(option.url);
@@ -646,6 +651,92 @@
 
             carousel.style.display = 'none';
             document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function loadDocumentosSaida() {
+            const agenda = document.getElementById('agenda');
+            const carousel = document.getElementById('carousel');
+            const formIframe = document.getElementById('form-iframe');
+            const calendarContainer = document.querySelector('.calendar-container');
+
+            if (formIframe) formIframe.remove();
+            if (calendarContainer) calendarContainer.remove();
+            carousel.style.display = 'none';
+
+            const tableContainer = document.createElement('div');
+            tableContainer.innerHTML = `
+                <table id="dataTable" style="border-collapse: collapse; width: 100%; margin: 20px 0;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Carimbo de data/hora</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Data da Saída</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">MEMO Nº</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Produto</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Quantidade</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Embalagem</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Secretária/Dep</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Responsável pela Saída</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Endereço de e-mail</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Link do Documento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            `;
+            agenda.appendChild(tableContainer);
+
+            const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pub?gid=1850767781&single=true&output=csv";
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            fetch(csvUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Erro ao carregar o CSV');
+                    return response.text();
+                })
+                .then(csvText => {
+                    const rows = csvText.split('\n').map(row => row.split(','));
+                    const tbody = document.getElementById('tableBody');
+                    tbody.innerHTML = '';
+
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        if (row.length < 10) continue;
+
+                        const tr = document.createElement('tr');
+                        tr.style.backgroundColor = i % 2 === 0 ? '#f9f9f9' : 'white';
+                        for (let j = 0; j < 10; j++) {
+                            const td = document.createElement('td');
+                            td.style.border = '1px solid #ddd';
+                            td.style.padding = '8px';
+                            if (j === 9) {
+                                const link = row[j].trim();
+                                if (link) {
+                                    const a = document.createElement('a');
+                                    a.href = link;
+                                    a.textContent = 'Abrir Documento';
+                                    a.target = '_blank';
+                                    a.style.color = '#0066cc';
+                                    a.style.textDecoration = 'none';
+                                    a.onmouseover = () => a.style.textDecoration = 'underline';
+                                    a.onmouseout = () => a.style.textDecoration = 'none';
+                                    td.appendChild(a);
+                                } else {
+                                    td.textContent = '-';
+                                }
+                            } else {
+                                td.textContent = row[j] || '-';
+                            }
+                            tr.appendChild(td);
+                        }
+                        tbody.appendChild(tr);
+                    }
+                    hideLoading();
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('tableBody').innerHTML = '<tr><td colspan="10">Erro ao carregar os dados.</td></tr>';
+                    handleIframeError();
+                });
         }
 
         function logout() {
@@ -786,6 +877,38 @@
                 }
             });
         };
+
+        // Funções do carrossel (necessárias para o admin)
+        let currentIframe = 0;
+        const iframes = ['iframe1', 'iframe2'];
+
+        function showIframe(index) {
+            iframes.forEach((id, i) => {
+                const iframe = document.getElementById(id);
+                if (i === index) {
+                    iframe.classList.add('active');
+                } else {
+                    iframe.classList.remove('active');
+                }
+            });
+        }
+
+        function nextIframe() {
+            currentIframe = (currentIframe + 1) % iframes.length;
+            showIframe(currentIframe);
+        }
+
+        function prevIframe() {
+            currentIframe = (currentIframe - 1 + iframes.length) % iframes.length;
+            showIframe(currentIframe);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (selectedUser === 'admin') {
+                document.getElementById('carousel').style.display = 'block';
+                showIframe(currentIframe);
+            }
+        });
     </script>
 </body>
 </html>
