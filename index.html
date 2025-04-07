@@ -708,6 +708,14 @@
             return rows;
         }
 
+        function parseDateBR(dateStr) {
+            // Converte "DD/MM/AAAA HH:MM:SS" para um objeto Date
+            const [date, time] = dateStr.split(' ');
+            const [day, month, year] = date.split('/').map(Number);
+            const [hours, minutes, seconds] = time.split(':').map(Number);
+            return new Date(year, month - 1, day, hours, minutes, seconds);
+        }
+
         function loadDocumentosSaida() {
             clearAgendaContent();
             const agenda = document.getElementById('agenda');
@@ -733,7 +741,7 @@
             `;
             agenda.appendChild(tableContainer);
 
-            const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pub?gid=1850767781&single=true&output=csv";
+            const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sf WLAH4JrKFfendkdx3gTUFUP9guaBL/pub?gid=1850767781&single=true&output=csv";
             document.getElementById('loading-overlay').style.display = 'flex';
 
             fetch(csvUrl)
@@ -751,7 +759,7 @@
                         const link = row[9] ? row[9].trim() : '';
                         return link && link !== '""';
                     });
-                    filteredRows.sort((a, b) => b[0].localeCompare(a[0])); // Ordena pela coluna 0 (Carimbo de data/hora) em ordem decrescente
+                    filteredRows.sort((a, b) => parseDateBR(b[0]) - parseDateBR(a[0])); // Ordena por data decrescente
 
                     filteredRows.forEach(row => {
                         const tr = document.createElement('tr');
