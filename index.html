@@ -1,42 +1,791 @@
-async function loadDocuments() {
-    const agenda = document.getElementById('agenda');
-    const carousel = document.getElementById('carousel');
-    const formIframe = document.getElementById('form-iframe');
-    const calendarContainer = document.querySelector('.calendar-container');
-    const docsContainer = document.getElementById('docs-container');
-    const docsBody = document.getElementById('docs-body');
-    const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pub?gid=1850767781&single=true&output=csv';
-
-    if (formIframe) formIframe.remove();
-    if (calendarContainer) calendarContainer.remove();
-    carousel.style.display = 'none';
-    docsContainer.classList.add('active');
-    document.getElementById('loading-overlay').style.display = 'flex';
-
-    try {
-        const response = await fetch(spreadsheetUrl);
-        const csvText = await response.text();
-        const rows = csvText.split('\n').map(row => row.split(','));
-        const dataRows = rows.slice(1); // Pula o cabeçalho
-
-        docsBody.innerHTML = '';
-
-        dataRows.forEach(row => {
-            if (row.length >= 10) { // Garante que a linha tem todas as colunas esperadas
-                const produto = row[3]; // Coluna D - Produto (índice 3)
-                const link = row[9];    // Coluna J - Link do Documento (índice 9)
-                const tableRow = document.createElement('tr');
-                tableRow.innerHTML = `
-                    <td>${produto}</td>
-                    <td><a href="${link}" target="_blank">Abrir Documento</a></td>
-                `;
-                docsBody.appendChild(tableRow);
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Profissional</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f6f5;
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: #1A2526;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            box-sizing: border-box;
+            z-index: 2000;
+            display: none;
+        }
+        .topbar.active {
+            display: flex;
+        }
+        .company-logo {
+            max-width: 150px;
+            height: auto;
+            object-fit: contain;
+        }
+        .profile-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            order: 2;
+        }
+        .profile-name {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            display: none;
+            order: 1;
+        }
+        .profile-name.active {
+            display: block;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background-color: #2C3E50;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            width: 120px;
+            z-index: 3000;
+        }
+        .dropdown-menu.active {
+            display: flex;
+        }
+        .dropdown-menu a {
+            color: #ffffff;
+            padding: 8px;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .dropdown-menu a:hover, .dropdown-menu a:focus {
+            background-color: #34495E;
+            outline: none;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('https://i.imgur.com/F0ttiSc.jpeg') no-repeat center/cover;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+        }
+        .login-box {
+            background: rgba(26, 37, 38, 0.9);
+            backdrop-filter: blur(5px);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 90%;
+            max-width: 460px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+            color: #ffffff;
+        }
+        .login-logos {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .login-logo {
+            max-width: 250px;
+            height: auto;
+            object-fit: contain;
+        }
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .user-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            background-color: #2c3e5059;
+        }
+        .user-option:hover {
+            background-color: #34495E;
+        }
+        .user-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+        .user-name {
+            font-size: 18px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+        .login-form {
+            margin-top: 20px;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.3s ease, max-height 0.3s ease;
+        }
+        .login-form.active {
+            opacity: 1;
+            max-height: 200px;
+        }
+        .login-box label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #ffffff;
+        }
+        .login-box input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #333;
+        }
+        .login-box button {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .login-box button[type="submit"] {
+            background-color: #34495E;
+            color: white;
+        }
+        .login-box button[type="submit"].btn-hover:hover {
+            background-color: #4A6076;
+        }
+        .login-box button.back-btn {
+            background-color: #2C3E50;
+            color: #ffffff;
+        }
+        .login-box button.back-btn.btn-hover:hover {
+            background-color: #34495E;
+        }
+        .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        .sidebar {
+            position: fixed;
+            left: -200px;
+            top: 40px;
+            height: calc(100% - 40px);
+            width: 200px;
+            background-color: #1A2526;
+            padding: 15px;
+            transition: left 0.3s ease;
+            box-sizing: border-box;
+            z-index: 500;
+        }
+        .sidebar.active {
+            left: 0;
+        }
+        .menu a {
+            display: block;
+            color: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            border-radius: 5px;
+            background-color: #2C3E50;
+            transition: background-color 0.3s;
+        }
+        .menu a.btn-hover:hover {
+            background-color: #34495E;
+        }
+        .content {
+            margin-left: 0;
+            padding: 20px;
+            flex: 1;
+            transition: margin-left 0.3s ease;
+            margin-top: 40px;
+            display: none;
+            box-sizing: border-box;
+            height: calc(100vh - 40px);
+            overflow: hidden;
+        }
+        .content.active {
+            display: block;
+        }
+        .sidebar.active + .content {
+            margin-left: 200px;
+        }
+        .agenda {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none;
+        }
+        .carousel iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+            visibility: visible;
+        }
+        .carousel iframe.active {
+            display: block;
+        }
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(26, 37, 38, 0.7);
+            color: white;
+            border: none;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 100;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        .carousel-btn.btn-hover:hover {
+            background: rgba(26, 37, 38, 0.9);
+        }
+        .carousel-btn.prev {
+            left: 10px;
+        }
+        .carousel-btn.next {
+            right: 10px;
+        }
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 200;
+        }
+        .calendar-container {
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .calendar-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        #form-iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: none;
+            visibility: visible;
+            overflow: auto;
+        }
+        #form-iframe.active {
+            display: block;
+        }
+        .sidebar-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1A2526;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+        .sidebar-toggle.btn-hover:hover {
+            background: #2C3E50;
+        }
+        .btn-hover:hover {
+            background-color: #34495E;
+        }
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 150px;
             }
-        });
-        hideLoading();
-    } catch (error) {
-        console.error('Erro ao carregar os dados:', error);
-        docsBody.innerHTML = '<tr><td colspan="2">Erro ao carregar os dados.</td></tr>';
-        handleIframeError();
-    }
-}
+            .sidebar.active + .content {
+                margin-left: 150px;
+            }
+            .login-box {
+                width: 90%;
+                max-width: 300px;
+            }
+            .company-logo {
+                max-width: 150px;
+                height: auto;
+            }
+            .login-logo {
+                max-width: 120px;
+            }
+            .carousel, .calendar-container {
+                height: 100%;
+            }
+            .carousel-btn.prev {
+                left: 5px;
+            }
+            .carousel-btn.next {
+                right: 5px;
+            }
+            .profile-name {
+                font-size: 12px;
+            }
+            .sidebar-toggle {
+                bottom: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar" id="topbar">
+        <img id="company-logo" class="company-logo" src="https://i.imgur.com/UUAKcJl.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/80?text=Logo+Indisponível';">
+        <div class="profile-container">
+            <span id="profile-name" class="profile-name"></span>
+            <img id="profile-logo" class="profile-logo" src="" alt="Logo do Perfil" onclick="toggleDropdown()">
+            <div class="dropdown-menu" id="dropdown-menu">
+                <a href="#" onclick="alert('Funcionalidade de perfil em desenvolvimento')">Perfil</a>
+                <a href="#" onclick="logout()">Sair</a>
+            </div>
+        </div>
+    </div>
+
+    <button class="sidebar-toggle btn-hover" id="sidebar-toggle" aria-label="Alternar barra lateral">☰</button>
+
+    <div class="login-container" id="login-container" role="dialog" aria-label="Tela de Login">
+        <div class="login-box">
+            <div class="login-logos">
+                <img class="login-logo" src="https://i.imgur.com/UUAKcJl.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/150?text=Logo+Indisponível';">
+                <img class="login-logo" src="https://i.imgur.com/WAh7GhF.png" alt="Logo da Empresa Parceira" onerror="this.src='https://via.placeholder.com/150?text=Logo+Indisponível';">
+            </div>
+            <div class="user-list" id="user-list"></div>
+            <div class="spinner" id="login-spinner"></div>
+            <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" placeholder="Digite sua senha" required aria-label="Senha">
+                <button type="submit" class="btn-hover">Entrar</button>
+                <button type="button" class="back-btn btn-hover" onclick="updateLoginScreen()">Voltar</button>
+            </form>
+        </div>
+    </div>
+
+    <nav class="sidebar" id="sidebar" role="navigation" aria-label="Menu Principal">
+        <div class="menu" id="menu"></div>
+    </nav>
+
+    <main class="content" id="content" role="main">
+        <div class="agenda" id="agenda">
+            <div class="loading-overlay" id="loading-overlay">
+                <span>Carregando...</span>
+                <button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
+            </div>
+            <div class="carousel" id="carousel">
+                <button class="carousel-btn prev btn-hover" onclick="prevIframe()" aria-label="Iframe anterior">❮</button>
+                <iframe id="iframe1" src="https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" onload="hideLoading()" onerror="handleIframeError()"></iframe>
+                <iframe id="iframe2" src="https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" onload="hideLoading()" onerror="handleIframeError()"></iframe>
+                <button class="carousel-btn next btn-hover" onclick="nextIframe()" aria-label="Próximo iframe">❯</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const users = {
+            admin: { name: 'Administrador', token: 'admin123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
+            contratos: { name: 'Contratos', token: 'contratos123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
+            fundos: { name: 'Fundos', token: 'fundos123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' }
+        };
+
+        const mockValidatePassword = (username, password) => {
+            const mockPasswords = { admin: 'adminpass', contratos: 'contratospass', fundos: 'fundospass' };
+            return mockPasswords[username] === password;
+        };
+
+        const menuOptions = {
+            admin: [
+                { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF' },
+                { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF' }
+            ],
+            contratos: [
+                { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
+                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true' },
+                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true' },
+                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfiXU6abwQH-ETTAPFS5VAy_yy09ID6Mrf3jAjHx_sbISzwtQ/viewform?embedded=true' },
+                { text: 'Link de Formulário', url: 'https://lookerstudio.google.com/embed/reporting/9cfa6179-25ab-4a4c-98e4-9165a4b17113/page/1hOFF' },
+                { text: 'Últimos Lançamentos', url: 'https://lookerstudio.google.com/embed/reporting/22200872-115a-41e1-bb63-2e88bbbdea32/page/VJNFF' }
+            ],
+            fundos: [
+                { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem' },
+                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true' },
+                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true' },
+                { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSc6BUqLAW8STBcSy4Sad_RoMu8B1vx3Fh71_BGKRMojI0N60g/viewform?embedded=true' },
+                { text: 'Últimos Lançamentos', url: 'https://lookerstudio.google.com/embed/reporting/1678d3b9-1aa3-4bc2-b5e3-faa0d7cc2b3c/page/7tVFF' },
+                { text: 'Link de Formulário', url: 'https://lookerstudio.google.com/embed/reporting/fdce6c70-86c6-4615-b703-59befa76cc78/page/CVbFF' }
+            ]
+        };
+
+        const calendarUrls = {
+            contratos: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem',
+            fundos: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem'
+        };
+
+        let selectedUser = null;
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            const spinner = document.getElementById('login-spinner');
+
+            spinner.style.display = 'block';
+
+            if (!selectedUser || !mockValidatePassword(selectedUser, password)) {
+                alert('Senha inválida!');
+                spinner.style.display = 'none';
+                return;
+            }
+
+            setTimeout(() => {
+                localStorage.setItem('userToken', users[selectedUser].token);
+                localStorage.setItem('username', selectedUser);
+                localStorage.setItem('lastUser', selectedUser);
+                
+                const loginScreen = document.querySelector('#login-container');
+                const sidebar = document.querySelector('#sidebar');
+                const content = document.querySelector('#content');
+                const topbar = document.querySelector('#topbar');
+                const profileLogo = document.querySelector('#profile-logo');
+                const profileName = document.querySelector('#profile-name');
+                
+                loginScreen.style.display = 'none';
+                sidebar.classList.add('active');
+                content.classList.add('active');
+                topbar.classList.add('active');
+                profileLogo.src = users[selectedUser].profilePhoto;
+                profileLogo.onerror = () => profileLogo.src = 'https://via.placeholder.com/30?text=Logo+Indisponível';
+                profileName.textContent = users[selectedUser].name;
+                profileName.classList.add('active');
+                
+                updateMenu(selectedUser);
+                if (selectedUser === 'contratos' || selectedUser === 'fundos') {
+                    loadCalendar(selectedUser);
+                } else {
+                    loadForm(menuOptions[selectedUser][0].url);
+                }
+                spinner.style.display = 'none';
+            }, 500);
+        }
+
+        function updateMenu(username) {
+            try {
+                const menu = document.querySelector('#menu');
+                menu.innerHTML = '';
+
+                menuOptions[username].forEach(option => {
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.textContent = option.text;
+                    link.classList.add('btn-hover');
+                    link.setAttribute('role', 'menuitem');
+                    link.setAttribute('aria-label', option.text);
+                    if (option.text === 'Agenda' && (username === 'contratos' || username === 'fundos')) {
+                        link.onclick = function () {
+                            loadCalendar(username);
+                        };
+                    } else {
+                        link.onclick = function () {
+                            loadForm(option.url);
+                        };
+                    }
+                    menu.appendChild(link);
+                });
+            } catch (error) {
+                console.error('Erro ao atualizar menu:', error);
+            }
+        }
+
+        function loadForm(formUrl) {
+            let formIframe = document.getElementById('form-iframe');
+            const carousel = document.getElementById('carousel');
+            const agenda = document.getElementById('agenda');
+            const calendarContainer = document.querySelector('.calendar-container');
+
+            if (formIframe) {
+                formIframe.remove();
+            }
+            if (calendarContainer) {
+                calendarContainer.remove();
+            }
+
+            formIframe = document.createElement('iframe');
+            formIframe.id = 'form-iframe';
+            formIframe.loading = 'lazy';
+            formIframe.src = formUrl;
+            formIframe.classList.add('active');
+            formIframe.onload = hideLoading;
+            formIframe.onerror = handleIframeError;
+            agenda.appendChild(formIframe);
+
+            carousel.style.display = 'none';
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function loadCalendar(username) {
+            const agenda = document.getElementById('agenda');
+            const carousel = document.getElementById('carousel');
+            const formIframe = document.getElementById('form-iframe');
+            const calendarContainer = document.querySelector('.calendar-container');
+
+            if (formIframe) {
+                formIframe.remove();
+            }
+            if (calendarContainer) {
+                calendarContainer.remove();
+            }
+
+            const newCalendarContainer = document.createElement('div');
+            newCalendarContainer.classList.add('calendar-container');
+
+            const iframe = document.createElement('iframe');
+            iframe.id = 'calendar-iframe';
+            iframe.loading = 'lazy';
+            iframe.src = calendarUrls[username];
+            iframe.scrolling = 'no';
+            iframe.onload = hideLoading;
+            iframe.onerror = handleIframeError;
+            iframe.setAttribute('frameborder', '0');
+
+            newCalendarContainer.appendChild(iframe);
+            agenda.appendChild(newCalendarContainer);
+
+            carousel.style.display = 'none';
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function logout() {
+            try {
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('username');
+                const loginScreen = document.querySelector('#login-container');
+                const sidebar = document.querySelector('#sidebar');
+                const content = document.querySelector('#content');
+                const topbar = document.querySelector('#topbar');
+                const dropdownMenu = document.querySelector('#dropdown-menu');
+                const profileName = document.querySelector('#profile-name');
+                
+                loginScreen.style.display = 'flex';
+                sidebar.classList.remove('active');
+                content.classList.remove('active');
+                topbar.classList.remove('active');
+                dropdownMenu.classList.remove('active');
+                profileName.classList.remove('active');
+                
+                updateLoginScreen();
+            } catch (error) {
+                console.error('Erro no logout:', error);
+                alert('Ocorreu um erro ao sair. Tente novamente.');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdownMenu = document.querySelector('#dropdown-menu');
+            dropdownMenu.classList.toggle('active');
+            if (dropdownMenu.classList.contains('active')) {
+                dropdownMenu.querySelector('a').focus();
+            }
+        }
+
+        function hideLoading() {
+            console.log('Conteúdo carregado com sucesso');
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        function handleIframeError() {
+            console.error('Erro ao carregar conteúdo');
+            const overlay = document.getElementById('loading-overlay');
+            overlay.innerHTML = '<span>Erro ao carregar o conteúdo.</span><button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+            overlay.style.display = 'flex';
+        }
+
+        function reloadContent() {
+            const formIframe = document.getElementById('form-iframe');
+            const calendarIframe = document.getElementById('calendar-iframe');
+            if (formIframe) {
+                formIframe.src = formIframe.src;
+            } else if (calendarIframe) {
+                calendarIframe.src = calendarIframe.src;
+            }
+            document.getElementById('loading-overlay').innerHTML = '<span>Carregando...</span><button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+        }
+
+        function updateLoginScreen() {
+            const userList = document.getElementById('user-list');
+            const loginForm = document.getElementById('login-form');
+            userList.innerHTML = '';
+            loginForm.classList.remove('active');
+            selectedUser = null;
+
+            Object.keys(users).forEach(username => {
+                const userDiv = document.createElement('div');
+                userDiv.classList.add('user-option');
+                userDiv.innerHTML = `
+                    <img class="user-photo" src="${users[username].profilePhoto}" alt="Foto de ${users[username].name}" onerror="this.src='https://via.placeholder.com/50?text=Foto+Indisponível';">
+                    <span class="user-name">${users[username].name}</span>
+                `;
+                userDiv.onclick = () => {
+                    selectedUser = username;
+                    userList.innerHTML = `
+                        <div class="user-option">
+                            <img class="user-photo" src="${users[username].profilePhoto}" alt="Foto de ${users[username].name}" onerror="this.src='https://via.placeholder.com/50?text=Foto+Indisponível';">
+                            <span class="user-name">${users[username].name}</span>
+                        </div>
+                    `;
+                    loginForm.classList.add('active');
+                    document.getElementById('password').focus();
+                };
+                userList.appendChild(userDiv);
+            });
+        }
+
+        window.onload = function() {
+            const token = localStorage.getItem('userToken');
+            const username = localStorage.getItem('username');
+            const loginScreen = document.querySelector('#login-container');
+            const sidebar = document.querySelector('#sidebar');
+            const content = document.querySelector('#content');
+            const topbar = document.querySelector('#topbar');
+            const profileLogo = document.querySelector('#profile-logo');
+            const profileName = document.querySelector('#profile-name');
+
+            if (token && username && users[username] && users[username].token === token) {
+                loginScreen.style.display = 'none';
+                sidebar.classList.add('active');
+                content.classList.add('active');
+                topbar.classList.add('active');
+                profileLogo.src = users[username].profilePhoto;
+                profileLogo.onerror = () => profileLogo.src = 'https://via.placeholder.com/30?text=Logo+Indisponível';
+                profileName.textContent = users[username].name;
+                profileName.classList.add('active');
+                updateMenu(username);
+                selectedUser = username;
+                if (username === 'contratos' || username === 'fundos') {
+                    loadCalendar(username);
+                } else {
+                    loadForm(menuOptions[username][0].url);
+                }
+            } else {
+                loginScreen.style.display = 'flex';
+                sidebar.classList.remove('active');
+                content.classList.remove('active');
+                topbar.classList.remove('active');
+                profileName.classList.remove('active');
+                updateLoginScreen();
+            }
+
+            document.getElementById('sidebar-toggle').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('active');
+            });
+
+            document.querySelector('#dropdown-menu').addEventListener('keydown', (e) => {
+                const links = Array.from(document.querySelectorAll('.dropdown-menu a'));
+                const current = document.activeElement;
+                const index = links.indexOf(current);
+                if (e.key === 'ArrowDown' && index < links.length - 1) {
+                    links[index + 1].focus();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp' && index > 0) {
+                    links[index - 1].focus();
+                    e.preventDefault();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
