@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Links de Documentos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Lista de Documentos</h1>
+    <table id="docsTable">
+        <thead>
+            <tr>
+                <th>Nome do Documento</th>
+                <th>Link</th>
+            </tr>
+        </thead>
+        <tbody id="docsBody"></tbody>
+    </table>
+
+    <script>
+        async function loadSpreadsheetData() {
+            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pub?gid=1850767781&single=true&output=csv';
+
+            try {
+                const response = await fetch(spreadsheetUrl);
+                const csvText = await response.text();
+                const rows = csvText.split('\n').map(row => row.split(','));
+                const dataRows = rows.slice(1);
+
+                const docsBody = document.getElementById('docsBody');
+                docsBody.innerHTML = '';
+
+                dataRows.forEach(row => {
+                    if (row.length >= 2) {
+                        const nome = row[0];
+                        const link = row[1];
+                        const tableRow = document.createElement('tr');
+                        tableRow.innerHTML = `
+                            <td>${nome}</td>
+                            <td><a href="${link}" target="_blank">Abrir Documento</a></td>
+                        `;
+                        docsBody.appendChild(tableRow);
+                    }
+                });
+            } catch (error) {
+                console.error('Erro ao carregar os dados:', error);
+                document.getElementById('docsBody').innerHTML = '<tr><td colspan="2">Erro ao carregar os dados.</td></tr>';
+            }
+        }
+
+        window.onload = loadSpreadsheetData;
+    </script>
+</body>
+</html>
