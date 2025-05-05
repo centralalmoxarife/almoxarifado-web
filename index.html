@@ -581,13 +581,14 @@
 
     const menuOptions = {
         admin: [
+            { text: 'Aniversários', action: 'loadBirthdays' },
             { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF' },
             { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF' },
             { text: 'Solicitação/memo', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfWcVKmB0I75oSL3fj2qAt3shtOZ97AgTRdW_7ehH0Bz90iQA/viewform?embedded=true' },
-            { text: 'Memos Lançados', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1844955489&single=true&widget=true&headers=false' },
-            { text: 'Aniversários', action: 'loadBirthdays' }
+            { text: 'Memos Lançados', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1844955489&single=true&widget=true&headers=false' }
         ],
         contratos: [
+            { text: 'Aniversários', action: 'loadBirthdays' },
             { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
             { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true' },
             { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true' },
@@ -596,6 +597,7 @@
             { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1850767781&single=true&widget=true&headers=false' }
         ],
         fundos: [
+            { text: 'Aniversários', action: 'loadBirthdays' },
             { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem' },
             { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true' },
             { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true' },
@@ -654,22 +656,22 @@
         agenda.appendChild(calendarContainer);
 
         const birthdays = [
-            { name: "Agnes Lira", date: "01-08", photo: "https://i.imgur.com/LxX8twP.jpg" },
-            { name: "Alessandra medeiros", date: "10-05", photo: "https://i.imgur.com/oiOqPMF.jpg" },
-            { name: "André Sidney", date: "04-12", photo: "https://i.imgur.com/KOE75om.jpg" },
-            { name: "Antônio Alves", date: "12-06", photo: "https://i.imgur.com/I0Zf5sb.jpg" },
-            { name: "Bruno Magalhães", date: "10-22", photo: "https://i.imgur.com/YjTnnm0.jpg" },
-            { name: "Célia Castro", date: "11-28", photo: "https://i.imgur.com/Ia6qcP0.jpg" },
-            { name: "Edimilson Lima", date: "11-13", photo: "https://i.imgur.com/MKWpj4H.jpg" },
-            { name: "Ednaldo Silva", date: "10-19", photo: "https://i.imgur.com/BPpsMPd.jpg" },
-            { name: "Emannuel Almeida", date: "11-22", photo: "https://i.imgur.com/ixgeiay.jpg" },
-            { name: "Fabiana Fernandes", date: "04-17", photo: "https://i.imgur.com/0ZvbFv3.jpg" },
-            { name: "Luana Peniche", date: "12-24", photo: "https://i.imgur.com/F21h35g.jpg" },
-            { name: "Raimunda Santos", date: "01-30", photo: "https://i.imgur.com/1tGoRYW.jpg" },
-            { name: "Rosália Pereira", date: "02-21", photo: "https://i.imgur.com/xOeADBe.jpg" },
-            { name: "Simone Brito", date: "05-29", photo: "https://i.imgur.com/VsRWpP5.jpg" },
-            { name: "Vanessa Lima", date: "03-21", photo: "https://i.imgur.com/GXcB2hw.jpg" },
-            { name: "Vilma Macedo", date: "12-03", photo: "https://i.imgur.com/33TySyl.jpg" }
+            { name: "Agnes", date: "01-08", photo: "https://i.imgur.com/LxX8twP.jpg" },
+            { name: "Alessandra", date: "10-05", photo: "https://i.imgur.com/oiOqPMF.jpg" },
+            { name: "André", date: "04-12", photo: "https://i.imgur.com/KOE75om.jpg" },
+            { name: "Antônio", date: "12-06", photo: "https://i.imgur.com/I0Zf5sb.jpg" },
+            { name: "Bruno", date: "10-22", photo: "https://i.imgur.com/YjTnnm0.jpg" },
+            { name: "Célia", date: "11-28", photo: "https://i.imgur.com/Ia6qcP0.jpg" },
+            { name: "Edimilson", date: "11-13", photo: "https://i.imgur.com/MKWpj4H.jpg" },
+            { name: "Ednaldo", date: "10-19", photo: "https://i.imgur.com/BPpsMPd.jpg" },
+            { name: "Emannuel", date: "11-22", photo: "https://i.imgur.com/ixgeiay.jpg" },
+            { name: "Fabiana", date: "04-17", photo: "https://i.imgur.com/0ZvbFv3.jpg" },
+            { name: "Luana", date: "12-24", photo: "https://i.imgur.com/F21h35g.jpg" },
+            { name: "Raimunda", date: "01-30", photo: "https://i.imgur.com/1tGoRYW.jpg" },
+            { name: "Rosália", date: "02-21", photo: "https://i.imgur.com/xOeADBe.jpg" },
+            { name: "Simone", date: "05-29", photo: "https://i.imgur.com/VsRWpP5.jpg" },
+            { name: "Vanessa", date: "03-21", photo: "https://i.imgur.com/GXcB2hw.jpg" },
+            { name: "Vilma", date: "12-03", photo: "https://i.imgur.com/33TySyl.jpg" }
         ];
 
         const months = [
@@ -738,9 +740,9 @@
             
             updateMenu(selectedUser);
             if (selectedUser === 'contratos' || selectedUser === 'fundos') {
-                loadCalendar(selectedUser);
+                loadBirthdays(); // Carrega aniversários como padrão
             } else {
-                loadForm(menuOptions[selectedUser][0].url);
+                loadBirthdays(); // Carrega aniversários como padrão para admin
             }
             spinner.style.display = 'none';
         }, 500);
@@ -762,7 +764,7 @@
                     link.onclick = function () {
                         loadCalendar(username);
                     };
-                } else if (option.text === 'Aniversários' && username === 'admin') {
+                } else if (option.text === 'Aniversários') {
                     link.onclick = function () {
                         loadBirthdays();
                     };
@@ -942,11 +944,7 @@
             profileName.classList.add('active');
             updateMenu(username);
             selectedUser = username;
-            if (username === 'contratos' || username === 'fundos') {
-                loadCalendar(username);
-            } else {
-                loadForm(menuOptions[username][0].url);
-            }
+            loadBirthdays(); // Carrega aniversários como padrão para todos os usuários
         } else {
             console.log('Nenhum usuário logado, exibindo tela de login');
             loginScreen.style.display = 'flex';
