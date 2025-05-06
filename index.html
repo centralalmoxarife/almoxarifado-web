@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Profissional</title>
+    <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
     <style>
         body {
             margin: 0;
@@ -507,7 +508,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             max-width: 300px;
             z-index: 3000;
-            animation: pulse 2s infinite;
         }
         .birthday-notification h3 {
             margin: 0 0 10px;
@@ -529,11 +529,6 @@
             color: #fff;
             font-size: 16px;
             cursor: pointer;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
         }
         @media (max-width: 768px) {
             .sidebar {
@@ -681,6 +676,7 @@
     };
 
     let selectedUser = null;
+    const jsConfetti = new JSConfetti();
 
     function clearAgendaContent() {
         const agenda = document.getElementById('agenda');
@@ -748,6 +744,7 @@
             { name: "Edimilson", date: "11-13", photo: "https://i.imgur.com/MKWpj4H.jpg" },
             { name: "Ednaldo", date: "10-19", photo: "https://i.imgur.com/BPpsMPd.jpg" },
             { name: "Emannuel", date: "11-22", photo: "https://i.imgur.com/ixgeiay.jpg" },
+			{ name: "Emannuel", date: "05-13", photo: "https://i.imgur.com/ixgeiay.jpg" },
             { name: "Fabiana", date: "04-17", photo: "https://i.imgur.com/0ZvbFv3.jpg" },
             { name: "Luana", date: "12-24", photo: "https://i.imgur.com/F21h35g.jpg" },
             { name: "Raimunda", date: "01-30", photo: "https://i.imgur.com/1tGoRYW.jpg" },
@@ -772,7 +769,7 @@
             return daysUntilBirthday <= 7 && daysUntilBirthday >= 0;
         });
 
-        // Criar notificação de aniversários próximos
+        // Criar notificação de aniversários próximos com confetes
         if (upcomingBirthdays.length > 0) {
             const notification = document.createElement('div');
             notification.className = 'birthday-notification';
@@ -784,6 +781,13 @@
                 </ul>
             `;
             calendarContainer.appendChild(notification);
+            // Acionar animação de confetes
+            jsConfetti.addConfetti({
+                confettiColors: ['#ff0a54', '#ff477e', '#ff85a1', '#f1f2f6', '#4267b2'],
+                confettiRadius: 6,
+                confettiNumber: 300,
+                duration: 3000
+            });
         }
 
         const calendarGrid = document.getElementById("calendar-grid");
@@ -796,7 +800,6 @@
             if (monthBirthdays.length === 0) {
                 monthDiv.innerHTML += "<p>Nenhum aniversariante este mês.</p>";
             } else {
-                // Ordenar por dia do aniversário
                 monthBirthdays.sort((a, b) => {
                     const dayA = parseInt(a.date.split("-")[1]);
                     const dayB = parseInt(b.date.split("-")[1]);
