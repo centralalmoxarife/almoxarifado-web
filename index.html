@@ -417,6 +417,7 @@
             height: 100%;
             overflow-y: auto;
             padding: 20px;
+            position: relative;
         }
         .birthday-calendar h1 {
             text-align: center;
@@ -464,6 +465,7 @@
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
             transform: rotate(2deg);
             margin-right: 10px;
+            cursor: pointer;
         }
         .birthday img:nth-child(odd) {
             transform: rotate(-2deg);
@@ -471,6 +473,67 @@
         .birthday span {
             font-size: 0.9em;
             color: #34495e;
+        }
+        /* Estilos do Modal de Imagem em Tela Cheia */
+        .fullscreen-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+            cursor: pointer;
+        }
+        .fullscreen-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border: 2px solid #fff;
+            border-radius: 8px;
+        }
+        /* Estilos da Notificação de Aniversários */
+        .birthday-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #d32f2f;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            max-width: 300px;
+            z-index: 3000;
+            animation: pulse 2s infinite;
+        }
+        .birthday-notification h3 {
+            margin: 0 0 10px;
+            font-size: 1.2em;
+        }
+        .birthday-notification ul {
+            margin: 0;
+            padding: 0 0 0 15px;
+        }
+        .birthday-notification li {
+            margin-bottom: 5px;
+        }
+        .birthday-notification .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         @media (max-width: 768px) {
             .sidebar {
@@ -511,6 +574,11 @@
             }
             .calendar-grid {
                 grid-template-columns: 1fr;
+            }
+            .birthday-notification {
+                max-width: 90%;
+                right: 10px;
+                top: 10px;
             }
         }
     </style>
@@ -644,6 +712,21 @@
         document.getElementById('loading-overlay').style.display = 'flex';
     }
 
+    function showFullscreenImage(src) {
+        const modal = document.createElement('div');
+        modal.className = 'fullscreen-modal';
+        modal.innerHTML = `<img src="${src}" class="fullscreen-image" alt="Imagem em tela cheia">`;
+        modal.onclick = closeFullscreenImage;
+        document.body.appendChild(modal);
+    }
+
+    function closeFullscreenImage() {
+        const modal = document.querySelector('.fullscreen-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
     function loadBirthdays() {
         clearAgendaContent();
         const agenda = document.getElementById('agenda');
@@ -679,6 +762,30 @@
             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
         ];
 
+        // Calcular aniversários próximos (nos próximos 7 dias)
+        const today = new Date();
+        const currentMonth = today.getMonth() + 1;
+        const currentDay = today.getDate();
+        const upcomingBirthdays = birthdays.filter(b => {
+            const [bMonth, bDay] = b.date.split("-").map(Number);
+            const daysUntilBirthday = ((bMonth - currentMonth) * 30 + (bDay - currentDay) + 360) % 360;
+            return daysUntilBirthday <= 7 && daysUntilBirthday >= 0;
+        });
+
+        // Criar notificação de aniversários próximos
+        if (upcomingBirthdays.length > 0) {
+            const notification = document.createElement('div');
+            notification.className = 'birthday-notification';
+            notification.innerHTML = `
+                <button class="close-btn" onclick="this.parentElement.remove()">✕</button>
+                <h3>Aniversários Próximos</h3>
+                <ul>
+                    ${upcomingBirthdays.map(b => `<li>${b.name} - ${b.date.split("-")[1]}/${b.date.split("-")[0]}</li>`).join('')}
+                </ul>
+            `;
+            calendarContainer.appendChild(notification);
+        }
+
         const calendarGrid = document.getElementById("calendar-grid");
         months.forEach((month, index) => {
             const monthDiv = document.createElement("div");
@@ -689,11 +796,17 @@
             if (monthBirthdays.length === 0) {
                 monthDiv.innerHTML += "<p>Nenhum aniversariante este mês.</p>";
             } else {
+                // Ordenar por dia do aniversário
+                monthBirthdays.sort((a, b) => {
+                    const dayA = parseInt(a.date.split("-")[1]);
+                    const dayB = parseInt(b.date.split("-")[1]);
+                    return dayA - dayB;
+                });
                 monthBirthdays.forEach(b => {
                     const birthdayDiv = document.createElement("div");
                     birthdayDiv.className = "birthday";
                     birthdayDiv.innerHTML = `
-                        <img src="${b.photo}" alt="${b.name}">
+                        <img src="${b.photo}" alt="${b.name}" onclick="showFullscreenImage('${b.photo}')">
                         <span>${b.name} - ${b.date.split("-")[1]}/${index + 1}</span>
                     `;
                     monthDiv.appendChild(birthdayDiv);
@@ -739,11 +852,7 @@
             profileName.classList.add('active');
             
             updateMenu(selectedUser);
-            if (selectedUser === 'contratos' || selectedUser === 'fundos') {
-                loadBirthdays(); // Carrega aniversários como padrão
-            } else {
-                loadBirthdays(); // Carrega aniversários como padrão para admin
-            }
+            loadBirthdays();
             spinner.style.display = 'none';
         }, 500);
     }
@@ -943,8 +1052,7 @@
             profileName.textContent = users[username].name;
             profileName.classList.add('active');
             updateMenu(username);
-            selectedUser = username;
-            loadBirthdays(); // Carrega aniversários como padrão para todos os usuários
+            loadBirthdays();
         } else {
             console.log('Nenhum usuário logado, exibindo tela de login');
             loginScreen.style.display = 'flex';
