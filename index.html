@@ -415,65 +415,75 @@
             background-attachment: fixed;
             background-position: center;
             color: #333;
-            height: 100%;
+            width: 100%;
+            min-height: 100%;
+            max-height: 100%;
             overflow-y: auto;
-            padding: 20px;
+            padding: 2%;
+            box-sizing: border-box;
             position: relative;
         }
         .birthday-calendar h1 {
             text-align: center;
             color: #fff;
             background-color: rgba(0, 0, 0, 0.6);
-            padding: 10px;
+            padding: 1rem;
             border-radius: 8px;
-            margin: 0 0 30px;
+            margin: 0 0 2rem;
+            font-size: clamp(1.5rem, 5vw, 2rem);
         }
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 0 1rem;
+            box-sizing: border-box;
         }
         .month {
             background-color: rgba(255, 255, 255, 0.95);
             border-radius: 8px;
-            padding: 15px;
+            padding: 1rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
         }
         .month h2 {
-            margin: 0 0 10px;
+            margin: 0 0 0.5rem;
             background-color: #d32f2f;
             color: #fff;
-            font-size: 1.2em;
+            font-size: clamp(1rem, 3vw, 1.2rem);
             text-align: center;
-            padding: 8px;
+            padding: 0.5rem;
             border-radius: 5px;
         }
         .birthday {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
         }
         .birthday img {
-            width: 50px;
-            height: 50px;
+            width: clamp(40px, 10vw, 50px);
+            height: clamp(40px, 10vw, 50px);
             border-radius: 5px;
             object-fit: cover;
-            padding: 5px 5px 15px 5px;
+            padding: 0.3rem 0.3rem 0.8rem 0.3rem;
             background-color: #fff;
             border: 1px solid #ccc;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
             transform: rotate(2deg);
-            margin-right: 10px;
+            margin-right: 0.6rem;
             cursor: pointer;
         }
         .birthday img:nth-child(odd) {
             transform: rotate(-2deg);
         }
         .birthday span {
-            font-size: 0.9em;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
             color: #34495e;
+            flex: 1;
         }
         /* Estilos do Modal de Imagem em Tela Cheia */
         .fullscreen-modal {
@@ -499,36 +509,92 @@
         /* Estilos da Notificação de Aniversários */
         .birthday-notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 1rem;
+            right: 1rem;
             background-color: #d32f2f;
             color: #fff;
-            padding: 15px;
+            padding: 1rem;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 90%;
             max-width: 300px;
             z-index: 3000;
+            box-sizing: border-box;
         }
         .birthday-notification h3 {
-            margin: 0 0 10px;
-            font-size: 1.2em;
+            margin: 0 0 0.5rem;
+            font-size: clamp(1rem, 3vw, 1.2rem);
         }
         .birthday-notification ul {
             margin: 0;
-            padding: 0 0 0 15px;
+            padding: 0 0 0 1rem;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
         }
         .birthday-notification li {
-            margin-bottom: 5px;
+            margin-bottom: 0.3rem;
         }
         .birthday-notification .close-btn {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 0.5rem;
+            right: 0.5rem;
             background: none;
             border: none;
             color: #fff;
-            font-size: 16px;
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
             cursor: pointer;
+        }
+        /* Estilo do Botão de Atualizar */
+        .refresh-btn {
+            padding: 5px 10px;
+            background: #1A2526;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+            display: none;
+        }
+        .refresh-btn.active {
+            display: block;
+        }
+        .refresh-btn:hover {
+            background: #34495E;
+        }
+        /* Media Queries para Responsividade */
+        @media (max-width: 900px) {
+            .calendar-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+            .birthday-calendar h1 {
+                font-size: clamp(1.2rem, 4vw, 1.8rem);
+            }
+            .month {
+                padding: 0.8rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .calendar-grid {
+                grid-template-columns: 1fr;
+                padding: 0 0.5rem;
+            }
+            .birthday-calendar {
+                padding: 1%;
+            }
+            .birthday-notification {
+                width: 95%;
+                max-width: 280px;
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+            .birthday img {
+                width: clamp(35px, 8vw, 45px);
+                height: clamp(35px, 8vw, 45px);
+            }
+            .birthday span {
+                font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+            }
         }
         @media (max-width: 768px) {
             .sidebar {
@@ -566,14 +632,6 @@
                 width: 40px;
                 height: 40px;
                 font-size: 20px;
-            }
-            .calendar-grid {
-                grid-template-columns: 1fr;
-            }
-            .birthday-notification {
-                max-width: 90%;
-                right: 10px;
-                top: 10px;
             }
         }
     </style>
@@ -617,9 +675,10 @@
 
 <main class="content" id="content" role="main">
     <div class="agenda" id="agenda">
+        <button class="refresh-btn" id="refresh-btn" onclick="reloadIframe()">Atualizar Planilha</button>
         <div class="loading-overlay" id="loading-overlay">
             <span>Carregando...</span>
-            <button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
+            <button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
         </div>
         <div class="carousel" id="carousel">
             <button class="carousel-btn prev btn-hover" onclick="prevIframe()" aria-label="Iframe anterior">❮</button>
@@ -655,7 +714,6 @@
             { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
             { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true' },
             { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true' },
-            { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfiXU6abwQH-ETTAPFS5VAy_yy09ID6Mrf3jAjHx_sbISzwtQ/viewform?embedded=true' },
             { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1207851381&single=true&widget=true&headers=false' },
             { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1850767781&single=true&widget=true&headers=false' }
         ],
@@ -664,7 +722,6 @@
             { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem' },
             { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true' },
             { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true' },
-            { text: 'Não Conforme', url: 'https://docs.google.com/forms/d/e/1FAIpQLSc6BUqLAW8STBcSy4Sad_RoMu8B1vx3Fh71_BGKRMojI0N60g/viewform?embedded=true' },
             { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1160054884&single=true&widget=true&headers=false' },
             { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=530975228&single=true&widget=true&headers=false' }
         ]
@@ -682,11 +739,23 @@
         const agenda = document.getElementById('agenda');
         const children = Array.from(agenda.children);
         children.forEach(child => {
-            if (child.id !== 'loading-overlay' && child.id !== 'carousel') {
+            if (child.id !== 'loading-overlay' && child.id !== 'carousel' && child.id !== 'refresh-btn') {
                 child.remove();
             }
         });
         document.getElementById('carousel').style.display = 'none';
+        document.getElementById('refresh-btn').classList.remove('active');
+    }
+
+    function shouldShowRefreshButton(url) {
+        const refreshUrls = [
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1207851381&single=true&widget=true&headers=false',
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1850767781&single=true&widget=true&headers=false',
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1160054884&single=true&widget=true&headers=false',
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=530975228&single=true&widget=true&headers=false',
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1844955489&single=true&widget=true&headers=false'
+        ];
+        return refreshUrls.includes(url);
     }
 
     function loadIframe(container, url, id, attributes = {}) {
@@ -695,10 +764,10 @@
         const iframeContainer = document.createElement('div');
         iframeContainer.classList.add(container);
 
+        const uniqueUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
         const iframe = document.createElement('iframe');
         iframe.id = id;
-        iframe.src = url;
-        iframe.loading = 'lazy';
+        iframe.src = uniqueUrl;
         iframe.onload = hideLoading;
         iframe.onerror = handleIframeError;
         Object.entries(attributes).forEach(([key, value]) => iframe.setAttribute(key, value));
@@ -706,6 +775,10 @@
         iframeContainer.appendChild(iframe);
         agenda.appendChild(iframeContainer);
         document.getElementById('loading-overlay').style.display = 'flex';
+
+        if (shouldShowRefreshButton(url)) {
+            document.getElementById('refresh-btn').classList.add('active');
+        }
     }
 
     function showFullscreenImage(src) {
@@ -758,7 +831,6 @@
             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
         ];
 
-        // Calcular aniversários próximos (nos próximos 7 dias)
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
         const currentDay = today.getDate();
@@ -768,7 +840,6 @@
             return daysUntilBirthday <= 7 && daysUntilBirthday >= 0;
         });
 
-        // Criar notificação de aniversários próximos com confetes
         if (upcomingBirthdays.length > 0) {
             const notification = document.createElement('div');
             notification.className = 'birthday-notification';
@@ -780,7 +851,6 @@
                 </ul>
             `;
             calendarContainer.appendChild(notification);
-            // Acionar animação de confetes
             jsConfetti.addConfetti({
                 confettiColors: ['#ff0a54', '#ff477e', '#ff85a1', '#f1f2f6', '#4267b2'],
                 confettiRadius: 6,
@@ -804,7 +874,7 @@
                     const dayB = parseInt(b.date.split("-")[1]);
                     return dayA - dayB;
                 });
-                monthBirthdays.forEach(b => {
+                monthBirthdays.forEach((b) => {
                     const birthdayDiv = document.createElement("div");
                     birthdayDiv.className = "birthday";
                     birthdayDiv.innerHTML = `
@@ -982,19 +1052,37 @@
     function handleIframeError() {
         console.error('Erro ao carregar iframe');
         const overlay = document.getElementById('loading-overlay');
-        overlay.innerHTML = '<span>Erro ao carregar o conteúdo.</span><button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+        overlay.innerHTML = '<span>Erro ao carregar o conteúdo. Verifique a conexão ou a URL.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
         overlay.style.display = 'flex';
     }
 
-    function reloadContent() {
+    function reloadIframe() {
+        console.log('Tentando recarregar iframe...');
         const formIframe = document.getElementById('form-iframe');
         const calendarIframe = document.getElementById('calendar-iframe');
-        if (formIframe) {
-            formIframe.src = formIframe.src;
-        } else if (calendarIframe) {
-            calendarIframe.src = calendarIframe.src;
+        const overlay = document.getElementById('loading-overlay');
+
+        if (!formIframe && !calendarIframe) {
+            console.error('Nenhum iframe encontrado para recarregar');
+            overlay.innerHTML = '<span>Nenhum conteúdo carregado para atualizar.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+            overlay.style.display = 'flex';
+            return;
         }
-        document.getElementById('loading-overlay').innerHTML = '<span>Carregando...</span><button onclick="reloadContent()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+
+        let iframeToReload = formIframe || calendarIframe;
+        let originalUrl = iframeToReload.src.split('&t=')[0].split('?t=')[0];
+
+        if (!originalUrl || !originalUrl.startsWith('https://')) {
+            console.error('URL do iframe inválida:', originalUrl);
+            overlay.innerHTML = '<span>Erro: URL inválida. Contate o administrador.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+            overlay.style.display = 'flex';
+            return;
+        }
+
+        console.log('Recarregando iframe com URL:', originalUrl);
+        iframeToReload.src = originalUrl + (originalUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+        overlay.innerHTML = '<span>Carregando...</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+        overlay.style.display = 'flex';
     }
 
     function updateLoginScreen() {
