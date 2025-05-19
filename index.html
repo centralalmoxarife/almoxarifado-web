@@ -101,6 +101,7 @@
             backdrop-filter: blur(5px);
             padding: 30px;
             border-radius: 10px;
+            border: 1px solid #2C3E50;
             text-align: center;
             width: 90%;
             max-width: 460px;
@@ -170,7 +171,7 @@
         .login-box input {
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #ccc;
+            border: 1px solid #2C3E50;
             font-size: 16px;
             width: 100%;
             box-sizing: border-box;
@@ -225,6 +226,7 @@
             transition: left 0.3s ease;
             box-sizing: border-box;
             z-index: 500;
+            border-right: 1px solid #2C3E50;
         }
         .sidebar.active {
             left: 0;
@@ -238,13 +240,14 @@
             border-radius: 5px;
             background-color: #2C3E50;
             transition: background-color 0.3s;
+            border: 1px solid #34495E;
         }
         .menu a.btn-hover:hover {
             background-color: #34495E;
         }
         .content {
             margin-left: 0;
-            padding: 20px;
+            padding: 0; /* Removido padding para maximizar o iframe */
             flex: 1;
             transition: margin-left 0.3s ease;
             margin-top: 40px;
@@ -261,13 +264,14 @@
         }
         .agenda {
             background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 0; /* Removido padding para maximizar o iframe */
+            border-radius: 0; /* Sem bordas ou cantos arredondados */
+            box-shadow: none; /* Removido sombra para aparência limpa */
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             width: 100%;
             height: 100%;
+            box-sizing: border-box;
         }
         .agenda > div {
             width: 100%;
@@ -276,7 +280,8 @@
         .agenda iframe {
             width: 100%;
             height: 100%;
-            border: 0;
+            border: 0; /* Sem bordas */
+            border-radius: 0; /* Sem cantos arredondados */
         }
         .carousel {
             position: relative;
@@ -289,7 +294,8 @@
         .carousel iframe {
             width: 100%;
             height: 100%;
-            border: 0;
+            border: 0; /* Removido bordas */
+            border-radius: 0; /* Sem cantos arredondados */
             position: absolute;
             top: 0;
             left: 0;
@@ -345,6 +351,22 @@
         .calendar-container, .form-container {
             width: 100%;
             height: 100%;
+            position: relative;
+            border: none;
+        }
+        .calendar-container iframe, .form-container iframe {
+            border: 0; /* Sem bordas */
+            border-radius: 0; /* Sem cantos arredondados */
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+            background: transparent;
+            width: 100%;
+            height: 100%;
+            min-width: 100%;
+            min-height: 100%;
+            display: block;
         }
         .sidebar-toggle {
             position: fixed;
@@ -365,6 +387,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             transition: background 0.3s;
+            border: 1px solid #2C3E50;
         }
         .sidebar-toggle.btn-hover:hover {
             background: #2C3E50;
@@ -381,9 +404,10 @@
             border-collapse: collapse;
             width: 100%;
             margin: 0;
+            border: 1px solid #2C3E50;
         }
         #dataTable th, #dataTable td {
-            border: 1px solid #ddd;
+            border: 1px solid #2C3E50;
             padding: 8px;
             text-align: left;
             white-space: nowrap;
@@ -408,7 +432,6 @@
             0% { transform: translate(-50%, -50%) rotate(0deg); }
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
-        /* Estilos do Calendário de Aniversários */
         .birthday-calendar {
             background-image: url('https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3');
             background-size: cover;
@@ -422,6 +445,8 @@
             padding: 2%;
             box-sizing: border-box;
             position: relative;
+            border: 1px solid #2C3E50;
+            border-radius: 10px;
         }
         .birthday-calendar h1 {
             text-align: center;
@@ -448,6 +473,7 @@
             padding: 1rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             box-sizing: border-box;
+            border: 1px solid #2C3E50;
         }
         .month h2 {
             margin: 0 0 0.5rem;
@@ -471,7 +497,7 @@
             object-fit: cover;
             padding: 0.3rem 0.3rem 0.8rem 0.3rem;
             background-color: #fff;
-            border: 1px solid #ccc;
+            border: 1px solid #2C3E50;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
             transform: rotate(2deg);
             margin-right: 0.6rem;
@@ -485,7 +511,6 @@
             color: #34495e;
             flex: 1;
         }
-        /* Estilos do Modal de Imagem em Tela Cheia */
         .fullscreen-modal {
             position: fixed;
             top: 0;
@@ -506,7 +531,6 @@
             border: 2px solid #fff;
             border-radius: 8px;
         }
-        /* Estilos da Notificação de Aniversários */
         .birthday-notification {
             position: fixed;
             top: 1rem;
@@ -520,6 +544,7 @@
             max-width: 300px;
             z-index: 3000;
             box-sizing: border-box;
+            border: 1px solid #2C3E50;
         }
         .birthday-notification h3 {
             margin: 0 0 0.5rem;
@@ -543,25 +568,6 @@
             font-size: clamp(0.8rem, 2.5vw, 1rem);
             cursor: pointer;
         }
-        /* Estilo do Botão de Atualizar */
-        .refresh-btn {
-            padding: 5px 10px;
-            background: #1A2526;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 10px;
-            transition: background 0.3s;
-            display: none;
-        }
-        .refresh-btn.active {
-            display: block;
-        }
-        .refresh-btn:hover {
-            background: #34495E;
-        }
-        /* Media Queries para Responsividade */
         @media (max-width: 900px) {
             .calendar-grid {
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -675,7 +681,6 @@
 
 <main class="content" id="content" role="main">
     <div class="agenda" id="agenda">
-        <button class="refresh-btn" id="refresh-btn" onclick="reloadIframe()">Atualizar Planilha</button>
         <div class="loading-overlay" id="loading-overlay">
             <span>Carregando...</span>
             <button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
@@ -739,23 +744,11 @@
         const agenda = document.getElementById('agenda');
         const children = Array.from(agenda.children);
         children.forEach(child => {
-            if (child.id !== 'loading-overlay' && child.id !== 'carousel' && child.id !== 'refresh-btn') {
+            if (child.id !== 'loading-overlay' && child.id !== 'carousel') {
                 child.remove();
             }
         });
         document.getElementById('carousel').style.display = 'none';
-        document.getElementById('refresh-btn').classList.remove('active');
-    }
-
-    function shouldShowRefreshButton(url) {
-        const refreshUrls = [
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1207851381&single=true&widget=true&headers=false',
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1850767781&single=true&widget=true&headers=false',
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1160054884&single=true&widget=true&headers=false',
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=530975228&single=true&widget=true&headers=false',
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1844955489&single=true&widget=true&headers=false'
-        ];
-        return refreshUrls.includes(url);
     }
 
     function loadIframe(container, url, id, attributes = {}) {
@@ -775,10 +768,6 @@
         iframeContainer.appendChild(iframe);
         agenda.appendChild(iframeContainer);
         document.getElementById('loading-overlay').style.display = 'flex';
-
-        if (shouldShowRefreshButton(url)) {
-            document.getElementById('refresh-btn').classList.add('active');
-        }
     }
 
     function showFullscreenImage(src) {
