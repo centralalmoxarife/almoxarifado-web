@@ -247,7 +247,7 @@
         }
         .content {
             margin-left: 0;
-            padding: 0; /* Removido padding para maximizar o iframe */
+            padding: 0;
             flex: 1;
             transition: margin-left 0.3s ease;
             margin-top: 40px;
@@ -264,9 +264,9 @@
         }
         .agenda {
             background-color: white;
-            padding: 0; /* Removido padding para maximizar o iframe */
-            border-radius: 0; /* Sem bordas ou cantos arredondados */
-            box-shadow: none; /* Removido sombra para aparência limpa */
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
             position: relative;
             overflow: visible;
             width: 100%;
@@ -280,8 +280,8 @@
         .agenda iframe {
             width: 100%;
             height: 100%;
-            border: 0; /* Sem bordas */
-            border-radius: 0; /* Sem cantos arredondados */
+            border: 0;
+            border-radius: 0;
         }
         .carousel {
             position: relative;
@@ -294,8 +294,8 @@
         .carousel iframe {
             width: 100%;
             height: 100%;
-            border: 0; /* Removido bordas */
-            border-radius: 0; /* Sem cantos arredondados */
+            border: 0;
+            border-radius: 0;
             position: absolute;
             top: 0;
             left: 0;
@@ -355,8 +355,8 @@
             border: none;
         }
         .calendar-container iframe, .form-container iframe {
-            border: 0; /* Sem bordas */
-            border-radius: 0; /* Sem cantos arredondados */
+            border: 0;
+            border-radius: 0;
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -698,11 +698,17 @@
     const users = {
         admin: { name: 'Administrador', token: 'admin123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
         contratos: { name: 'Contratos', token: 'contratos123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
-        fundos: { name: 'Fundos', token: 'fundos123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' }
+        fundos: { name: 'Fundos', token: 'fundos123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
+        support: { name: 'Support - TI', token: 'support123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' }
     };
 
     const mockValidatePassword = (username, password) => {
-        const mockPasswords = { admin: 'adminpass', contratos: 'contratospass', fundos: 'fundospass' };
+        const mockPasswords = { 
+            admin: 'adminpass', 
+            contratos: 'contratospass', 
+            fundos: 'fundospass', 
+            support: 'Ti123' 
+        };
         return mockPasswords[username] === password;
     };
 
@@ -729,6 +735,11 @@
             { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true' },
             { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1160054884&single=true&widget=true&headers=false' },
             { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=530975228&single=true&widget=true&headers=false' }
+        ],
+        support: [
+            { text: 'Aniversários', action: 'loadBirthdays' },
+            { text: 'Form controle A4', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdVA4gBTK2rsN_w7ptw4hia48hLtebmIiX1ICzTdGfOzwZOEA/viewform?embedded=true' },
+            { text: 'Planilha controle A4', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ__31nkbcSNUsHK4Jo7V0JbYcMhklZou99cNjKmea-AJ9YBEZJhB67QbVn2OOfu5tXWTP2LrjufMYl/pubhtml?gid=217423230&single=true' }
         ]
     };
 
@@ -1004,6 +1015,7 @@
         try {
             localStorage.removeItem('userToken');
             localStorage.removeItem('username');
+            localStorage.removeItem('lastUser');
             const loginScreen = document.querySelector('#login-container');
             const sidebar = document.querySelector('#sidebar');
             const content = document.querySelector('#content');
@@ -1120,6 +1132,12 @@
         const profileLogo = document.querySelector('#profile-logo');
         const profileName = document.querySelector('#profile-name');
 
+        console.log('Token:', token, 'Username:', username);
+        if (!loginScreen) {
+            console.error('login-container não encontrado!');
+            return;
+        }
+
         if (token && username && users[username] && users[username].token === token) {
             console.log('Usuário já logado:', username);
             loginScreen.style.display = 'none';
@@ -1134,6 +1152,9 @@
             loadBirthdays();
         } else {
             console.log('Nenhum usuário logado, exibindo tela de login');
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('lastUser');
             loginScreen.style.display = 'flex';
             sidebar.classList.remove('active');
             content.classList.remove('active');
