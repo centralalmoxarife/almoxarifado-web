@@ -44,6 +44,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Profissional</title>
     <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -52,6 +53,22 @@
             display: flex;
             height: 100vh;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://i.imgur.com/aXi6GXi.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 50%;
+            opacity: 0.9; /* Increased for visibility */
+            z-index: 999; /* High z-index to overlay content */
+            pointer-events: none; /* Prevent interaction */
         }
         .topbar {
             position: fixed;
@@ -136,7 +153,7 @@
             z-index: 1000;
         }
         .login-box {
-            background: rgba(26, 37, 38, 0.9);
+            background: rgba(26, 37, 38, 0.95); /* Increased opacity for readability */
             backdrop-filter: blur(5px);
             padding: 30px;
             border-radius: 10px;
@@ -147,6 +164,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             position: relative;
             color: #ffffff;
+            z-index: 1001; /* Above watermark */
         }
         .login-logos {
             display: flex;
@@ -264,8 +282,7 @@
             padding: 15px;
             transition: left 0.3s ease;
             box-sizing: border-box;
-            z-index: 500;
-            border-right: 1px solid #2C3E50;
+            z-index: 2000; /* Above watermark */
         }
         .sidebar.active {
             left: 0;
@@ -294,6 +311,7 @@
             box-sizing: border-box;
             height: calc(100vh - 40px);
             overflow: hidden;
+            z-index: 1001; /* Above watermark */
         }
         .content.active {
             display: block;
@@ -302,7 +320,7 @@
             margin-left: 200px;
         }
         .agenda {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent for watermark visibility */
             padding: 0;
             border-radius: 0;
             box-shadow: none;
@@ -311,6 +329,7 @@
             width: 100%;
             height: 100%;
             box-sizing: border-box;
+            z-index: 1001; /* Above watermark */
         }
         .agenda > div {
             width: 100%;
@@ -354,7 +373,7 @@
             padding: 15px;
             cursor: pointer;
             font-size: 24px;
-            z-index: 100;
+            z-index: 2000; /* Above watermark */
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -385,7 +404,7 @@
             color: white;
             flex-direction: column;
             gap: 10px;
-            z-index: 200;
+            z-index: 1500; /* Above watermark, below interactive elements */
         }
         .calendar-container, .form-container {
             width: 100%;
@@ -424,7 +443,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
+            z-index: 2000; /* Above watermark */
             transition: background 0.3s;
             border: 1px solid #2C3E50;
         }
@@ -455,7 +474,7 @@
             background-color: #f2f2f2;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 1500; /* Above watermark */
         }
         #dataTable tr:nth-child(even) {
             background-color: #f9f9f9;
@@ -472,7 +491,7 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         .birthday-calendar {
-            background-image: url('https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3');
+            background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent for watermark visibility */
             background-size: cover;
             background-attachment: fixed;
             background-position: center;
@@ -486,6 +505,7 @@
             position: relative;
             border: 1px solid #2C3E50;
             border-radius: 10px;
+            z-index: 1001; /* Above watermark */
         }
         .birthday-calendar h1 {
             text-align: center;
@@ -541,6 +561,7 @@
             transform: rotate(2deg);
             margin-right: 0.6rem;
             cursor: pointer;
+            z-index: 1002; /* Above watermark */
         }
         .birthday img:nth-child(odd) {
             transform: rotate(-2deg);
@@ -560,7 +581,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 4000;
+            z-index: 4000; /* Above watermark */
             cursor: pointer;
         }
         .fullscreen-image {
@@ -581,7 +602,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             width: 90%;
             max-width: 300px;
-            z-index: 3000;
+            z-index: 3000; /* Above watermark */
             box-sizing: border-box;
             border: 1px solid #2C3E50;
         }
@@ -606,6 +627,7 @@
             color: #fff;
             font-size: clamp(0.8rem, 2.5vw, 1rem);
             cursor: pointer;
+            z-index: 3001; /* Above watermark */
         }
         @media (max-width: 900px) {
             .calendar-grid {
@@ -682,579 +704,603 @@
     </style>
 </head>
 <body>
+    <div class="watermark"></div>
+    <script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+            return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+            if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+                try {
+                    var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                    var firstSheetName = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[firstSheetName];
+                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                    var filteredData = jsonData.filter(row => row.some(filledCell));
+                    var headerRowIndex = filteredData.findIndex((row, index) =>
+                        row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                    );
+                    if (headerRowIndex === -1 || headerRowIndex > 25) {
+                        headerRowIndex = 0;
+                    }
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                    csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                    return csv;
+                } catch (e) {
+                    console.error(e);
+                    return "";
+                }
+            }
+            return gk_fileData[filename] || "";
+        }
+    </script>
 
-<div class="topbar" id="topbar">
-    <img id="company-logo" class="company-logo" src="https://i.imgur.com/UUAKcJl.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/80?text=Logo+Indisponível';">
-    <div class="profile-container">
-        <span id="profile-name" class="profile-name"></span>
-        <img id="profile-logo" class="profile-logo" src="" alt="Logo do Perfil" onclick="toggleDropdown()">
-        <div class="dropdown-menu" id="dropdown-menu">
-            <a href="#" onclick="alert('Funcionalidade de perfil em desenvolvimento')">Perfil</a>
-            <a href="#" onclick="logout()">Sair</a>
+    <div class="topbar" id="topbar">
+        <img id="company-logo" class="company-logo" src="https://i.imgur.com/UUAKcJl.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/80?text=Logo+Indisponível';">
+        <div class="profile-container">
+            <span id="profile-name" class="profile-name"></span>
+            <img id="profile-logo" class="profile-logo" src="" alt="Logo do Perfil" onclick="toggleDropdown()">
+            <div class="dropdown-menu" id="dropdown-menu">
+                <a href="#" onclick="loadBirthdays()">Aniversários</a>
+                <a href="#" onclick="logout()">Sair</a>
+            </div>
         </div>
     </div>
-</div>
 
-<button class="sidebar-toggle btn-hover" id="sidebar-toggle" aria-label="Alternar barra lateral">☰</button>
+    <button class="sidebar-toggle btn-hover" id="sidebar-toggle" aria-label="Alternar barra lateral">☰</button>
 
-<div class="login-container" id="login-container" role="dialog" aria-label="Tela de Login">
-    <div class="login-box">
-        <div class="login-logos">
-            <img class="login-logo" src="https://i.imgur.com/UUAKcJl.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/150?text=Logo+Indisponível';">
-            <img class="login-logo" src="https://i.imgur.com/WAh7GhF.png" alt="Logo da Empresa Parceira" onerror="this.src='https://via.placeholder.com/150?text=Logo+Indisponível';">
-        </div>
-        <div class="user-list" id="user-list"></div>
-        <div class="spinner" id="login-spinner"></div>
-        <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
-            <label for="password">Senha:</label>
-            <input type="password" id="password" name="password" placeholder="Digite sua senha" required aria-label="Senha">
-            <button type="submit" class="btn-hover">Entrar</button>
-            <button type="button" class="back-btn btn-hover" onclick="updateLoginScreen()">Voltar</button>
-        </form>
-    </div>
-</div>
-
-<nav class="sidebar" id="sidebar" role="navigation" aria-label="Menu Principal">
-    <div class="menu" id="menu"></div>
-</nav>
-
-<main class="content" id="content" role="main">
-    <div class="agenda" id="agenda">
-        <div class="loading-overlay" id="loading-overlay">
-            <span>Carregando...</span>
-            <button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
-        </div>
-        <div class="carousel" id="carousel">
-            <button class="carousel-btn prev btn-hover" onclick="prevIframe()" aria-label="Iframe anterior">❮</button>
-            <iframe id="iframe1" src="https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" onload="hideLoading()" onerror="handleIframeError()"></iframe>
-            <iframe id="iframe2" src="https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" onload="hideLoading()" onerror="handleIframeError()"></iframe>
-            <button class="carousel-btn next btn-hover" onclick="nextIframe()" aria-label="Próximo iframe">❯</button>
+    <div class="login-container" id="login-container" role="dialog" aria-label="Tela de Login">
+        <div class="login-box">
+            <div class="login-logos">
+                <img class="login-logo" src="https://i.imgur.com/UUAKcJl.png" alt="Logo da Empresa" onerror="this.src='https://via.placeholder.com/150?text=Logo+Indisponível';">
+                <img class="login-logo" src="https://i.imgur.com/WAh7GhF.png" alt="Logo da Empresa Parceira" onerror="this.src='https://via.placeholder.com/150?text=Logo+Indisponível';">
+            </div>
+            <div class="user-list" id="user-list"></div>
+            <div class="spinner" id="login-spinner"></div>
+            <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" placeholder="Digite sua senha" required aria-label="Senha">
+                <button type="submit" class="btn-hover">Entrar</button>
+                <button type="button" class="back-btn btn-hover" onclick="updateLoginScreen()">Voltar</button>
+            </form>
         </div>
     </div>
-</main>
 
-<script>
-    const users = {
-        admin: { name: 'Administrador', token: 'admin123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
-        contratos: { name: 'Contratos', token: 'contratos123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
-        fundos: { name: 'Fundos', token: 'fundos123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
-        support: { name: 'Support - TI', token: 'support123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' }
-    };
+    <nav class="sidebar" id="sidebar" role="navigation" aria-label="Menu Principal">
+        <div class="menu" id="menu"></div>
+    </nav>
 
-    const mockValidatePassword = (username, password) => {
-        const mockPasswords = { 
-            admin: 'adminpass', 
-            contratos: 'contratospass', 
-            fundos: 'fundospass', 
-            support: 'Ti123' 
+    <main class="content" id="content" role="main">
+        <div class="agenda" id="agenda">
+            <div class="loading-overlay" id="loading-overlay">
+                <span>Carregando...</span>
+                <button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>
+            </div>
+            <div class="carousel" id="carousel">
+                <button class="carousel-btn prev btn-hover" onclick="prevIframe()" aria-label="Iframe anterior">❮</button>
+                <iframe id="iframe1" src="https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" onload="hideLoading()" onerror="handleIframeError()"></iframe>
+                <iframe id="iframe2" src="https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" onload="hideLoading()" onerror="handleIframeError()"></iframe>
+                <button class="carousel-btn next btn-hover" onclick="nextIframe()" aria-label="Próximo iframe">❯</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const users = {
+            admin: { name: 'Administrador', token: 'admin123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
+            contratos: { name: 'Contratos', token: 'contratos123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
+            fundos: { name: 'Fundos', token: 'fundos123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' },
+            support: { name: 'Support - TI', token: 'support123', profilePhoto: 'https://i.imgur.com/f2EnSQC.png' }
         };
-        return mockPasswords[username] === password;
-    };
 
-    const menuOptions = {
-        admin: [
-            { text: 'Aniversários', action: 'loadBirthdays' },
-            { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
-            { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF' },
-            { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF' },
-            { text: 'Solicitação/memo', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfWcVKmB0I75oSL3fj2qAt3shtOZ97AgTRdW_7ehH0Bz90iQA/viewform?embedded=true' },
-            { text: 'Memos Lançados', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1844955489&single=true&widget=true&headers=false' }
-        ],
-        contratos: [
-            { text: 'Aniversários', action: 'loadBirthdays' },
-            { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
-            { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
-            { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true' },
-            { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true' },
-            { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1207851381&single=true&widget=true&headers=false' },
-            { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1850767781&single=true&widget=true&headers=false' }
-        ],
-        fundos: [
-            { text: 'Aniversários', action: 'loadBirthdays' },
-            { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
-            { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem' },
-            { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true' },
-            { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true' },
-            { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1160054884&single=true&widget=true&headers=false' },
-            { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=530975228&single=true&widget=true&headers=false' }
-        ],
-        support: [
-            { text: 'Aniversários', action: 'loadBirthdays' },
-            { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
-            { text: 'Form controle A4', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdVA4gBTK2rsN_w7ptw4hia48hLtebmIiX1ICzTdGfOzwZOEA/viewform?embedded=true' },
-            { text: 'Planilha controle A4', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJk7K7VJZ28FqEjUeiwVCSvqyHibc7LRaaR2WGJZTHnZhtyqn-W6YLHp1MuMZOeR7v8uBiTW9_tEh_/pubhtml' }
-        ]
-    };
+        const mockValidatePassword = (username, password) => {
+            const mockPasswords = { 
+                admin: 'adminpass', 
+                contratos: 'contratospass', 
+                fundos: 'fundospass', 
+                support: 'Ti123' 
+            };
+            return mockPasswords[username] === password;
+        };
 
-    const calendarUrls = {
-        contratos: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem',
-        fundos: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem'
-    };
+        const menuOptions = {
+            admin: [
+                { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
+                { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
+                { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF' },
+                { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF' },
+                { text: 'Solicitação/memo', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfWcVKmB0I75oSL3fj2qAt3shtOZ97AgTRdW_7ehH0Bz90iQA/viewform?embedded=true' },
+                { text: 'Memos Lançados', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1844955489&single=true&widget=true&headers=false' }
+            ],
+            contratos: [
+                { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
+                { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
+                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true' },
+                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true' },
+                { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1207851381&single=true&widget=true&headers=false' },
+                { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1850767781&single=true&widget=true&headers=false' }
+            ],
+            fundos: [
+                { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
+                { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem' },
+                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true' },
+                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true' },
+                { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1160054884&single=true&widget=true&headers=false' },
+                { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=530975228&single=true&widget=true&headers=false' }
+            ],
+            support: [
+                { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
+                { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
+                { text: 'Form controle A4', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdVA4gBTK2rsN_w7ptw4hia48hLtebmIiX1ICzTdGfOzwZOEA/viewform?embedded=true' },
+                { text: 'Planilha controle A4', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJk7K7VJZ28FqEjUeiwVCSvqyHibc7LRaaR2WGJZTHnZhtyqn-W6YLHp1MuMZOeR7v8uBiTW9_tEh_/pubhtml' }
+            ]
+        };
 
-    let selectedUser = null;
-    const jsConfetti = new JSConfetti();
+        const calendarUrls = {
+            admin: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem',
+            contratos: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem',
+            fundos: 'https://calendar.google.com/calendar/embed?src=b9af275475acd50103f739fab3e27706b1ccddc814033c99543ad7740663dc09%40group.calendar.google.com&ctz=America%2FBelem',
+            support: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem'
+        };
 
-    function clearAgendaContent() {
-        const agenda = document.getElementById('agenda');
-        const children = Array.from(agenda.children);
-        children.forEach(child => {
-            if (child.id !== 'loading-overlay' && child.id !== 'carousel') {
-                child.remove();
-            }
-        });
-        document.getElementById('carousel').style.display = 'none';
-    }
+        let selectedUser = null;
+        const jsConfetti = new JSConfetti();
 
-    function loadIframe(container, url, id, attributes = {}) {
-        clearAgendaContent();
-        const agenda = document.getElementById('agenda');
-        const iframeContainer = document.createElement('div');
-        iframeContainer.classList.add(container);
-
-        const uniqueUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
-        const iframe = document.createElement('iframe');
-        iframe.id = id;
-        iframe.src = uniqueUrl;
-        iframe.onload = hideLoading;
-        iframe.onerror = handleIframeError;
-        Object.entries(attributes).forEach(([key, value]) => iframe.setAttribute(key, value));
-
-        iframeContainer.appendChild(iframe);
-        agenda.appendChild(iframeContainer);
-        document.getElementById('loading-overlay').style.display = 'flex';
-    }
-
-    function showFullscreenImage(src) {
-        const modal = document.createElement('div');
-        modal.className = 'fullscreen-modal';
-        modal.innerHTML = `<img src="${src}" class="fullscreen-image" alt="Imagem em tela cheia">`;
-        modal.onclick = closeFullscreenImage;
-        document.body.appendChild(modal);
-    }
-
-    function closeFullscreenImage() {
-        const modal = document.querySelector('.fullscreen-modal');
-        if (modal) {
-            modal.remove();
-        }
-    }
-
-    function loadBirthdays() {
-        clearAgendaContent();
-        const agenda = document.getElementById('agenda');
-        const calendarContainer = document.createElement('div');
-        calendarContainer.classList.add('birthday-calendar');
-        calendarContainer.innerHTML = `
-            <h1>Calendário de Aniversários 2025</h1>
-            <div class="calendar-grid" id="calendar-grid"></div>
-        `;
-        agenda.appendChild(calendarContainer);
-
-        const birthdays = [
-            { name: "Agnes", date: "01-08", photo: "https://i.imgur.com/LxX8twP.jpg" },
-            { name: "Alessandra", date: "10-05", photo: "https://i.imgur.com/oiOqPMF.jpg" },
-            { name: "André", date: "04-12", photo: "https://i.imgur.com/KOE75om.jpg" },
-            { name: "Antônio", date: "12-06", photo: "https://i.imgur.com/I0Zf5sb.jpg" },
-            { name: "Bruno", date: "10-22", photo: "https://i.imgur.com/YjTnnm0.jpg" },
-            { name: "Célia", date: "11-28", photo: "https://i.imgur.com/Ia6qcP0.jpg" },
-            { name: "Edimilson", date: "11-13", photo: "https://i.imgur.com/MKWpj4H.jpg" },
-            { name: "Ednaldo", date: "10-19", photo: "https://i.imgur.com/BPpsMPd.jpg" },
-            { name: "Emannuel", date: "11-22", photo: "https://i.imgur.com/ixgeiay.jpg" },
-            { name: "Fabiana", date: "04-17", photo: "https://i.imgur.com/0ZvbFv3.jpg" },
-            { name: "Luana", date: "12-24", photo: "https://i.imgur.com/F21h35g.jpg" },
-            { name: "Raimunda", date: "01-30", photo: "https://i.imgur.com/1tGoRYW.jpg" },
-            { name: "Rosália", date: "02-21", photo: "https://i.imgur.com/xOeADBe.jpg" },
-            { name: "Simone", date: "05-29", photo: "https://i.imgur.com/VsRWpP5.jpg" },
-            { name: "Vanessa", date: "03-21", photo: "https://i.imgur.com/GXcB2hw.jpg" },
-            { name: "Vilma", date: "12-03", photo: "https://i.imgur.com/33TySyl.jpg" }
-        ];
-
-        const months = [
-            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-        ];
-
-        const today = new Date();
-        const currentMonth = today.getMonth() + 1;
-        const currentDay = today.getDate();
-        const upcomingBirthdays = birthdays.filter(b => {
-            const [bMonth, bDay] = b.date.split("-").map(Number);
-            const daysUntilBirthday = ((bMonth - currentMonth) * 30 + (bDay - currentDay) + 360) % 360;
-            return daysUntilBirthday <= 7 && daysUntilBirthday >= 0;
-        });
-
-        if (upcomingBirthdays.length > 0) {
-            const notification = document.createElement('div');
-            notification.className = 'birthday-notification';
-            notification.innerHTML = `
-                <button class="close-btn" onclick="this.parentElement.remove()">✕</button>
-                <h3>Aniversários Próximos</h3>
-                <ul>
-                    ${upcomingBirthdays.map(b => `<li>${b.name} - ${b.date.split("-")[1]}/${b.date.split("-")[0]}</li>`).join('')}
-                </ul>
-            `;
-            calendarContainer.appendChild(notification);
-            jsConfetti.addConfetti({
-                confettiColors: ['#ff0a54', '#ff477e', '#ff85a1', '#f1f2f6', '#4267b2'],
-                confettiRadius: 6,
-                confettiNumber: 300,
-                duration: 3000
+        function clearAgendaContent() {
+            const agenda = document.getElementById('agenda');
+            const children = Array.from(agenda.children);
+            children.forEach(child => {
+                if (child.id !== 'loading-overlay' && child.id !== 'carousel') {
+                    child.remove();
+                }
             });
+            document.getElementById('carousel').style.display = 'none';
         }
 
-        const calendarGrid = document.getElementById("calendar-grid");
-        months.forEach((month, index) => {
-            const monthDiv = document.createElement("div");
-            monthDiv.className = "month";
-            monthDiv.innerHTML = `<h2>${month}</h2>`;
+        function loadIframe(container, url, id, attributes = {}) {
+            clearAgendaContent();
+            const agenda = document.getElementById('agenda');
+            const iframeContainer = document.createElement('div');
+            iframeContainer.classList.add(container);
 
-            const monthBirthdays = birthdays.filter(b => b.date.startsWith(`${index + 1}`.padStart(2, "0")));
-            if (monthBirthdays.length === 0) {
-                monthDiv.innerHTML += "<p>Nenhum aniversariante este mês.</p>";
-            } else {
-                monthBirthdays.sort((a, b) => {
-                    const dayA = parseInt(a.date.split("-")[1]);
-                    const dayB = parseInt(b.date.split("-")[1]);
-                    return dayA - dayB;
-                });
-                monthBirthdays.forEach((b) => {
-                    const birthdayDiv = document.createElement("div");
-                    birthdayDiv.className = "birthday";
-                    birthdayDiv.innerHTML = `
-                        <img src="${b.photo}" alt="${b.name}" onclick="showFullscreenImage('${b.photo}')">
-                        <span>${b.name} - ${b.date.split("-")[1]}/${index + 1}</span>
-                    `;
-                    monthDiv.appendChild(birthdayDiv);
+            const uniqueUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+            const iframe = document.createElement('iframe');
+            iframe.id = id;
+            iframe.src = uniqueUrl;
+            iframe.onload = hideLoading;
+            iframe.onerror = handleIframeError;
+            Object.entries(attributes).forEach(([key, value]) => iframe.setAttribute(key, value));
+
+            iframeContainer.appendChild(iframe);
+            agenda.appendChild(iframeContainer);
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function showFullscreenImage(src) {
+            const modal = document.createElement('div');
+            modal.className = 'fullscreen-modal';
+            modal.innerHTML = `<img src="${src}" class="fullscreen-image" alt="Imagem em tela cheia">`;
+            modal.onclick = closeFullscreenImage;
+            document.body.appendChild(modal);
+        }
+
+        function closeFullscreenImage() {
+            const modal = document.querySelector('.fullscreen-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function loadBirthdays() {
+            clearAgendaContent();
+            const agenda = document.getElementById('agenda');
+            const calendarContainer = document.createElement('div');
+            calendarContainer.classList.add('birthday-calendar');
+            calendarContainer.innerHTML = `
+                <h1>Calendário de Aniversários 2025</h1>
+                <div class="calendar-grid" id="calendar-grid"></div>
+            `;
+            agenda.appendChild(calendarContainer);
+
+            const birthdays = [
+                { name: "Alessandra", date: "10-05", photo: "https://i.imgur.com/oiOqPMF.jpg" },
+                { name: "André", date: "04-12", photo: "https://i.imgur.com/KOE75om.jpg" },
+                { name: "Antônio", date: "12-06", photo: "https://i.imgur.com/I0Zf5sb.jpg" },
+                { name: "Bruno", date: "10-22", photo: "https://i.imgur.com/YjTnnm0.jpg" },
+                { name: "Célia", date: "11-28", photo: "https://i.imgur.com/Ia6qcP0.jpg" },
+                { name: "Edimilson", date: "11-13", photo: "https://i.imgur.com/MKWpj4H.jpg" },
+                { name: "Ednaldo", date: "10-19", photo: "https://i.imgur.com/BPpsMPd.jpg" },
+                { name: "Fabiana", date: "04-17", photo: "https://i.imgur.com/0ZvbFv3.jpg" },
+                { name: "Luana", date: "12-24", photo: "https://i.imgur.com/F21h35g.jpg" },
+                { name: "Raimunda", date: "01-30", photo: "https://i.imgur.com/1tGoRYW.jpg" },
+                { name: "Rosália", date: "02-21", photo: "https://i.imgur.com/xOeADBe.jpg" },
+                { name: "Simone", date: "05-29", photo: "https://i.imgur.com/VsRWpP5.jpg" },
+                { name: "Vanessa", date: "03-21", photo: "https://i.imgur.com/GXcB2hw.jpg" },
+                { name: "Vilma", date: "12-03", photo: "https://i.imgur.com/33TySyl.jpg" }
+            ];
+
+            const months = [
+                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+            ];
+
+            const today = new Date();
+            const currentMonth = today.getMonth() + 1;
+            const currentDay = today.getDate();
+            const upcomingBirthdays = birthdays.filter(b => {
+                const [bMonth, bDay] = b.date.split("-").map(Number);
+                const daysUntilBirthday = ((bMonth - currentMonth) * 30 + (bDay - currentDay) + 360) % 360;
+                return daysUntilBirthday <= 7 && daysUntilBirthday >= 0;
+            });
+
+            if (upcomingBirthdays.length > 0) {
+                const notification = document.createElement('div');
+                notification.className = 'birthday-notification';
+                notification.innerHTML = `
+                    <button class="close-btn" onclick="this.parentElement.remove()">✕</button>
+                    <h3>Aniversários Próximos</h3>
+                    <ul>
+                        ${upcomingBirthdays.map(b => `<li>${b.name} - ${b.date.split("-")[1]}/${b.date.split("-")[0]}</li>`).join('')}
+                    </ul>
+                `;
+                calendarContainer.appendChild(notification);
+                jsConfetti.addConfetti({
+                    confettiColors: ['#ff0a54', '#ff477e', '#ff85a1', '#f1f2f6', '#4267b2'],
+                    confettiRadius: 6,
+                    confettiNumber: 300,
+                    duration: 3000
                 });
             }
-            calendarGrid.appendChild(monthDiv);
-        });
-        hideLoading();
-    }
 
-    function handleLogin(event) {
-        event.preventDefault();
-        const password = document.getElementById('password').value;
-        const spinner = document.getElementById('login-spinner');
+            const calendarGrid = document.getElementById("calendar-grid");
+            months.forEach((month, index) => {
+                const monthDiv = document.createElement("div");
+                monthDiv.className = "month";
+                monthDiv.innerHTML = `<h2>${month}</h2>`;
 
-        spinner.style.display = 'block';
-
-        if (!selectedUser || !mockValidatePassword(selectedUser, password)) {
-            alert('Senha inválida!');
-            spinner.style.display = 'none';
-            return;
+                const monthBirthdays = birthdays.filter(b => b.date.startsWith(`${index + 1}`.padStart(2, "0")));
+                if (monthBirthdays.length === 0) {
+                    monthDiv.innerHTML += "<p>Nenhum aniversariante este mês.</p>";
+                } else {
+                    monthBirthdays.sort((a, b) => {
+                        const dayA = parseInt(a.date.split("-")[1]);
+                        const dayB = parseInt(b.date.split("-")[1]);
+                        return dayA - dayB;
+                    });
+                    monthBirthdays.forEach((b) => {
+                        const birthdayDiv = document.createElement("div");
+                        birthdayDiv.className = "birthday";
+                        birthdayDiv.innerHTML = `
+                            <img src="${b.photo}" alt="${b.name}" onclick="showFullscreenImage('${b.photo}')">
+                            <span>${b.name} - ${b.date.split("-")[1]}/${index + 1}</span>
+                        `;
+                        monthDiv.appendChild(birthdayDiv);
+                    });
+                }
+                calendarGrid.appendChild(monthDiv);
+            });
+            hideLoading();
         }
 
-        setTimeout(() => {
-            localStorage.setItem('userToken', users[selectedUser].token);
-            localStorage.setItem('username', selectedUser);
-            localStorage.setItem('lastUser', selectedUser);
-            
+        function handleLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            const spinner = document.getElementById('login-spinner');
+
+            spinner.style.display = 'block';
+
+            if (!selectedUser || !mockValidatePassword(selectedUser, password)) {
+                alert('Senha inválida!');
+                spinner.style.display = 'none';
+                return;
+            }
+
+            setTimeout(() => {
+                localStorage.setItem('userToken', users[selectedUser].token);
+                localStorage.setItem('username', selectedUser);
+                localStorage.setItem('lastUser', selectedUser);
+                
+                const loginScreen = document.querySelector('#login-container');
+                const sidebar = document.querySelector('#sidebar');
+                const content = document.querySelector('#content');
+                const topbar = document.querySelector('#topbar');
+                const profileLogo = document.querySelector('#profile-logo');
+                const profileName = document.querySelector('#profile-name');
+                
+                loginScreen.style.display = 'none';
+                sidebar.classList.add('active');
+                content.classList.add('active');
+                topbar.classList.add('active');
+                profileLogo.src = users[selectedUser].profilePhoto;
+                profileLogo.onerror = () => profileLogo.src = 'https://via.placeholder.com/30?text=Logo+Indisponível';
+                profileName.textContent = users[selectedUser].name;
+                profileName.classList.add('active');
+                
+                updateMenu(selectedUser);
+                loadCalendar(selectedUser); // Load calendar on login
+                spinner.style.display = 'none';
+            }, 500);
+        }
+
+        function updateMenu(username) {
+            try {
+                const menu = document.querySelector('#menu');
+                menu.innerHTML = '';
+
+                menuOptions[username].forEach(option => {
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.textContent = option.text;
+                    link.classList.add('btn-hover');
+                    link.setAttribute('role', 'menuitem');
+                    link.setAttribute('aria-label', option.text);
+                    if (option.text === 'Agenda') {
+                        link.onclick = function () {
+                            loadCalendar(username);
+                        };
+                    } else if (option.text === 'Email') {
+                        link.onclick = function () {
+                            window.open(option.url, '_blank');
+                        };
+                    } else {
+                        link.onclick = function () {
+                            loadForm(option.url);
+                        };
+                    }
+                    menu.appendChild(link);
+                });
+            } catch (error) {
+                console.error('Erro ao atualizar menu:', error);
+            }
+        }
+
+        function loadForm(formUrl) {
+            loadIframe('form-container', formUrl, 'form-iframe', { class: 'active' });
+        }
+
+        function loadCalendar(username) {
+            loadIframe('calendar-container', calendarUrls[username], 'calendar-iframe', { scrolling: 'no', frameborder: '0' });
+        }
+
+        function parseCSV(csvText) {
+            const rows = [];
+            let currentRow = [];
+            let currentField = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+
+                if (char === '"') {
+                    insideQuotes = !insideQuotes;
+                } else if (char === ',' && !insideQuotes) {
+                    currentRow.push(currentField.trim());
+                    currentField = '';
+                } else if (char === '\n' && !insideQuotes) {
+                    currentRow.push(currentField.trim());
+                    if (currentRow.length > 1) rows.push(currentRow);
+                    currentRow = [];
+                    currentField = '';
+                } else {
+                    currentField += char;
+                }
+            }
+            if (currentField || currentRow.length > 0) {
+                currentRow.push(currentField.trim());
+                if (currentRow.length > 1) rows.push(currentRow);
+            }
+            return rows;
+        }
+
+        function parseDateBR(dateStr) {
+            try {
+                const [date, time] = dateStr.split(' ');
+                const [day, month, year] = date.split('/').map(Number);
+                const [hours, minutes, seconds] = time.split(':').map(Number);
+                return new Date(year, month - 1, day, hours, minutes, seconds);
+            } catch (e) {
+                console.error('Erro ao parsear data:', dateStr, e);
+                return new Date(0);
+            }
+        }
+
+        function logout() {
+            try {
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('username');
+                localStorage.removeItem('lastUser');
+                const loginScreen = document.querySelector('#login-container');
+                const sidebar = document.querySelector('#sidebar');
+                const content = document.querySelector('#content');
+                const topbar = document.querySelector('#topbar');
+                const dropdownMenu = document.querySelector('#dropdown-menu');
+                const profileName = document.querySelector('#profile-name');
+                
+                loginScreen.style.display = 'flex';
+                sidebar.classList.remove('active');
+                content.classList.remove('active');
+                topbar.classList.remove('active');
+                dropdownMenu.classList.remove('active');
+                profileName.classList.remove('active');
+                
+                updateLoginScreen();
+            } catch (error) {
+                console.error('Erro no logout:', error);
+                alert('Ocorreu um erro ao sair. Tente novamente.');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdownMenu = document.querySelector('#dropdown-menu');
+            dropdownMenu.classList.toggle('active');
+            if (dropdownMenu.classList.contains('active')) {
+                dropdownMenu.querySelector('a').focus();
+            }
+        }
+
+        function hideLoading() {
+            console.log('Conteúdo carregado com sucesso');
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        function handleIframeError() {
+            console.error('Erro ao carregar iframe');
+            const overlay = document.getElementById('loading-overlay');
+            overlay.innerHTML = '<span>Erro ao carregar o conteúdo. Verifique a conexão ou a URL.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+            overlay.style.display = 'flex';
+        }
+
+        function reloadIframe() {
+            console.log('Tentando recarregar iframe...');
+            const formIframe = document.getElementById('form-iframe');
+            const calendarIframe = document.getElementById('calendar-iframe');
+            const overlay = document.getElementById('loading-overlay');
+
+            if (!formIframe && !calendarIframe) {
+                console.error('Nenhum iframe encontrado para recarregar');
+                overlay.innerHTML = '<span>Nenhum conteúdo carregado para atualizar.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+                overlay.style.display = 'flex';
+                return;
+            }
+
+            let iframeToReload = formIframe || calendarIframe;
+            let originalUrl = iframeToReload.src.split('&t=')[0].split('?t=')[0];
+
+            if (!originalUrl || !originalUrl.startsWith('https://')) {
+                console.error('URL do iframe inválida:', originalUrl);
+                overlay.innerHTML = '<span>Erro: URL inválida. Contate o administrador.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+                overlay.style.display = 'flex';
+                return;
+            }
+
+            console.log('Recarregando iframe com URL:', originalUrl);
+            iframeToReload.src = originalUrl + (originalUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+            overlay.innerHTML = '<span>Carregando...</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
+            overlay.style.display = 'flex';
+        }
+
+        function updateLoginScreen() {
+            console.log('Atualizando tela de login...');
+            const userList = document.getElementById('user-list');
+            const loginForm = document.getElementById('login-form');
+            if (!userList || !loginForm) {
+                console.error('Elementos #user-list ou #login-form não encontrados');
+                return;
+            }
+            userList.innerHTML = '';
+            loginForm.classList.remove('active');
+            selectedUser = null;
+
+            Object.keys(users).forEach(username => {
+                const userDiv = document.createElement('div');
+                userDiv.classList.add('user-option');
+                userDiv.innerHTML = `
+                    <img class="user-photo" src="${users[username].profilePhoto}" alt="Foto de ${users[username].name}" onerror="this.src='https://via.placeholder.com/50?text=Foto+Indisponível';">
+                    <span class="user-name">${users[username].name}</span>
+                `;
+                userDiv.onclick = () => {
+                    selectedUser = username;
+                    userList.innerHTML = `
+                        <div class="user-option">
+                            <img class="user-photo" src="${users[username].profilePhoto}" alt="Foto de ${users[username].name}" onerror="this.src='https://via.placeholder.com/50?text=Foto+Indisponível';">
+                            <span class="user-name">${users[username].name}</span>
+                        </div>
+                    `;
+                    loginForm.classList.add('active');
+                    document.getElementById('password').focus();
+                };
+                userList.appendChild(userDiv);
+            });
+            console.log('Tela de login atualizada com', Object.keys(users).length, 'usuários');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM carregado, verificando estado de login...');
+            const token = localStorage.getItem('userToken');
+            const username = localStorage.getItem('username');
             const loginScreen = document.querySelector('#login-container');
             const sidebar = document.querySelector('#sidebar');
             const content = document.querySelector('#content');
             const topbar = document.querySelector('#topbar');
             const profileLogo = document.querySelector('#profile-logo');
             const profileName = document.querySelector('#profile-name');
-            
-            loginScreen.style.display = 'none';
-            sidebar.classList.add('active');
-            content.classList.add('active');
-            topbar.classList.add('active');
-            profileLogo.src = users[selectedUser].profilePhoto;
-            profileLogo.onerror = () => profileLogo.src = 'https://via.placeholder.com/30?text=Logo+Indisponível';
-            profileName.textContent = users[selectedUser].name;
-            profileName.classList.add('active');
-            
-            updateMenu(selectedUser);
-            loadBirthdays();
-            spinner.style.display = 'none';
-        }, 500);
-    }
 
-    function updateMenu(username) {
-        try {
-            const menu = document.querySelector('#menu');
-            menu.innerHTML = '';
+            console.log('Token:', token, 'Username:', username);
+            if (!loginScreen) {
+                console.error('login-container não encontrado!');
+                return;
+            }
 
-            menuOptions[username].forEach(option => {
-                const link = document.createElement('a');
-                link.href = '#';
-                link.textContent = option.text;
-                link.classList.add('btn-hover');
-                link.setAttribute('role', 'menuitem');
-                link.setAttribute('aria-label', option.text);
-                if (option.text === 'Agenda' && (username === 'contratos' || username === 'fundos')) {
-                    link.onclick = function () {
-                        loadCalendar(username);
-                    };
-                } else if (option.text === 'Aniversários') {
-                    link.onclick = function () {
-                        loadBirthdays();
-                    };
-                } else {
-                    link.onclick = function () {
-                        loadForm(option.url);
-                    };
-                }
-                menu.appendChild(link);
+            if (token && username && users[username] && users[username].token === token) {
+                console.log('Usuário já logado:', username);
+                loginScreen.style.display = 'none';
+                sidebar.classList.add('active');
+                content.classList.add('active');
+                topbar.classList.add('active');
+                profileLogo.src = users[username].profilePhoto;
+                profileLogo.onerror = () => profileLogo.src = 'https://via.placeholder.com/30?text=Logo+Indisponível';
+                profileName.textContent = users[username].name;
+                profileName.classList.add('active');
+                updateMenu(username);
+                loadCalendar(username); // Load calendar on page load for logged-in user
+            } else {
+                console.log('Nenhum usuário logado, exibindo tela de login');
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('username');
+                localStorage.removeItem('lastUser');
+                loginScreen.style.display = 'flex';
+                sidebar.classList.remove('active');
+                content.classList.remove('active');
+                topbar.classList.remove('active');
+                profileName.classList.remove('active');
+                updateLoginScreen();
+            }
+
+            document.getElementById('sidebar-toggle').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('active');
             });
-        } catch (error) {
-            console.error('Erro ao atualizar menu:', error);
-        }
-    }
 
-    function loadForm(formUrl) {
-        loadIframe('form-container', formUrl, 'form-iframe', { class: 'active' });
-    }
-
-    function loadCalendar(username) {
-        loadIframe('calendar-container', calendarUrls[username], 'calendar-iframe', { scrolling: 'no', frameborder: '0' });
-    }
-
-    function parseCSV(csvText) {
-        const rows = [];
-        let currentRow = [];
-        let currentField = '';
-        let insideQuotes = false;
-
-        for (let i = 0; i < csvText.length; i++) {
-            const char = csvText[i];
-
-            if (char === '"') {
-                insideQuotes = !insideQuotes;
-            } else if (char === ',' && !insideQuotes) {
-                currentRow.push(currentField.trim());
-                currentField = '';
-            } else if (char === '\n' && !insideQuotes) {
-                currentRow.push(currentField.trim());
-                if (currentRow.length > 1) rows.push(currentRow);
-                currentRow = [];
-                currentField = '';
-            } else {
-                currentField += char;
-            }
-        }
-        if (currentField || currentRow.length > 0) {
-            currentRow.push(currentField.trim());
-            if (currentRow.length > 1) rows.push(currentRow);
-        }
-        return rows;
-    }
-
-    function parseDateBR(dateStr) {
-        try {
-            const [date, time] = dateStr.split(' ');
-            const [day, month, year] = date.split('/').map(Number);
-            const [hours, minutes, seconds] = time.split(':').map(Number);
-            return new Date(year, month - 1, day, hours, minutes, seconds);
-        } catch (e) {
-            console.error('Erro ao parsear data:', dateStr, e);
-            return new Date(0);
-        }
-    }
-
-    function logout() {
-        try {
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('username');
-            localStorage.removeItem('lastUser');
-            const loginScreen = document.querySelector('#login-container');
-            const sidebar = document.querySelector('#sidebar');
-            const content = document.querySelector('#content');
-            const topbar = document.querySelector('#topbar');
-            const dropdownMenu = document.querySelector('#dropdown-menu');
-            const profileName = document.querySelector('#profile-name');
-            
-            loginScreen.style.display = 'flex';
-            sidebar.classList.remove('active');
-            content.classList.remove('active');
-            topbar.classList.remove('active');
-            dropdownMenu.classList.remove('active');
-            profileName.classList.remove('active');
-            
-            updateLoginScreen();
-        } catch (error) {
-            console.error('Erro no logout:', error);
-            alert('Ocorreu um erro ao sair. Tente novamente.');
-        }
-    }
-
-    function toggleDropdown() {
-        const dropdownMenu = document.querySelector('#dropdown-menu');
-        dropdownMenu.classList.toggle('active');
-        if (dropdownMenu.classList.contains('active')) {
-            dropdownMenu.querySelector('a').focus();
-        }
-    }
-
-    function hideLoading() {
-        console.log('Conteúdo carregado com sucesso');
-        document.getElementById('loading-overlay').style.display = 'none';
-    }
-
-    function handleIframeError() {
-        console.error('Erro ao carregar iframe');
-        const overlay = document.getElementById('loading-overlay');
-        overlay.innerHTML = '<span>Erro ao carregar o conteúdo. Verifique a conexão ou a URL.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
-        overlay.style.display = 'flex';
-    }
-
-    function reloadIframe() {
-        console.log('Tentando recarregar iframe...');
-        const formIframe = document.getElementById('form-iframe');
-        const calendarIframe = document.getElementById('calendar-iframe');
-        const overlay = document.getElementById('loading-overlay');
-
-        if (!formIframe && !calendarIframe) {
-            console.error('Nenhum iframe encontrado para recarregar');
-            overlay.innerHTML = '<span>Nenhum conteúdo carregado para atualizar.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
-            overlay.style.display = 'flex';
-            return;
-        }
-
-        let iframeToReload = formIframe || calendarIframe;
-        let originalUrl = iframeToReload.src.split('&t=')[0].split('?t=')[0];
-
-        if (!originalUrl || !originalUrl.startsWith('https://')) {
-            console.error('URL do iframe inválida:', originalUrl);
-            overlay.innerHTML = '<span>Erro: URL inválida. Contate o administrador.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
-            overlay.style.display = 'flex';
-            return;
-        }
-
-        console.log('Recarregando iframe com URL:', originalUrl);
-        iframeToReload.src = originalUrl + (originalUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
-        overlay.innerHTML = '<span>Carregando...</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
-        overlay.style.display = 'flex';
-    }
-
-    function updateLoginScreen() {
-        console.log('Atualizando tela de login...');
-        const userList = document.getElementById('user-list');
-        const loginForm = document.getElementById('login-form');
-        if (!userList || !loginForm) {
-            console.error('Elementos #user-list ou #login-form não encontrados');
-            return;
-        }
-        userList.innerHTML = '';
-        loginForm.classList.remove('active');
-        selectedUser = null;
-
-        Object.keys(users).forEach(username => {
-            const userDiv = document.createElement('div');
-            userDiv.classList.add('user-option');
-            userDiv.innerHTML = `
-                <img class="user-photo" src="${users[username].profilePhoto}" alt="Foto de ${users[username].name}" onerror="this.src='https://via.placeholder.com/50?text=Foto+Indisponível';">
-                <span class="user-name">${users[username].name}</span>
-            `;
-            userDiv.onclick = () => {
-                selectedUser = username;
-                userList.innerHTML = `
-                    <div class="user-option">
-                        <img class="user-photo" src="${users[username].profilePhoto}" alt="Foto de ${users[username].name}" onerror="this.src='https://via.placeholder.com/50?text=Foto+Indisponível';">
-                        <span class="user-name">${users[username].name}</span>
-                    </div>
-                `;
-                loginForm.classList.add('active');
-                document.getElementById('password').focus();
-            };
-            userList.appendChild(userDiv);
-        });
-        console.log('Tela de login atualizada com', Object.keys(users).length, 'usuários');
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM carregado, verificando estado de login...');
-        const token = localStorage.getItem('userToken');
-        const username = localStorage.getItem('username');
-        const loginScreen = document.querySelector('#login-container');
-        const sidebar = document.querySelector('#sidebar');
-        const content = document.querySelector('#content');
-        const topbar = document.querySelector('#topbar');
-        const profileLogo = document.querySelector('#profile-logo');
-        const profileName = document.querySelector('#profile-name');
-
-        console.log('Token:', token, 'Username:', username);
-        if (!loginScreen) {
-            console.error('login-container não encontrado!');
-            return;
-        }
-
-        if (token && username && users[username] && users[username].token === token) {
-            console.log('Usuário já logado:', username);
-            loginScreen.style.display = 'none';
-            sidebar.classList.add('active');
-            content.classList.add('active');
-            topbar.classList.add('active');
-            profileLogo.src = users[username].profilePhoto;
-            profileLogo.onerror = () => profileLogo.src = 'https://via.placeholder.com/30?text=Logo+Indisponível';
-            profileName.textContent = users[username].name;
-            profileName.classList.add('active');
-            updateMenu(username);
-            loadBirthdays();
-        } else {
-            console.log('Nenhum usuário logado, exibindo tela de login');
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('username');
-            localStorage.removeItem('lastUser');
-            loginScreen.style.display = 'flex';
-            sidebar.classList.remove('active');
-            content.classList.remove('active');
-            topbar.classList.remove('active');
-            profileName.classList.remove('active');
-            updateLoginScreen();
-        }
-
-        document.getElementById('sidebar-toggle').addEventListener('click', () => {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
+            document.querySelector('#dropdown-menu').addEventListener('keydown', (e) => {
+                const links = Array.from(document.querySelectorAll('.dropdown-menu a'));
+                const current = document.activeElement;
+                const index = links.indexOf(current);
+                if (e.key === 'ArrowDown' && index < links.length - 1) {
+                    links[index + 1].focus();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp' && index > 0) {
+                    links[index - 1].focus();
+                    e.preventDefault();
+                }
+            });
         });
 
-        document.querySelector('#dropdown-menu').addEventListener('keydown', (e) => {
-            const links = Array.from(document.querySelectorAll('.dropdown-menu a'));
-            const current = document.activeElement;
-            const index = links.indexOf(current);
-            if (e.key === 'ArrowDown' && index < links.length - 1) {
-                links[index + 1].focus();
-                e.preventDefault();
-            } else if (e.key === 'ArrowUp' && index > 0) {
-                links[index - 1].focus();
-                e.preventDefault();
-            }
-        });
-    });
+        let currentIframe = 0;
+        const iframes = ['iframe1', 'iframe2'];
 
-    let currentIframe = 0;
-    const iframes = ['iframe1', 'iframe2'];
+        function showIframe(index) {
+            iframes.forEach((id, i) => {
+                const iframe = document.getElementById(id);
+                if (i === index) {
+                    iframe.classList.add('active');
+                } else {
+                    iframe.classList.remove('active');
+                }
+            });
+        }
 
-    function showIframe(index) {
-        iframes.forEach((id, i) => {
-            const iframe = document.getElementById(id);
-            if (i === index) {
-                iframe.classList.add('active');
-            } else {
-                iframe.classList.remove('active');
-            }
-        });
-    }
-
-    function nextIframe() {
-        currentIframe = (currentIframe + 1) % iframes.length;
-        showIframe(currentIframe);
-    }
-
-    function prevIframe() {
-        currentIframe = (currentIframe - 1 + iframes.length) % iframes.length;
-        showIframe(currentIframe);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (selectedUser === 'admin') {
-            document.getElementById('carousel').style.display = 'block';
+        function nextIframe() {
+            currentIframe = (currentIframe + 1) % iframes.length;
             showIframe(currentIframe);
         }
-    });
-</script>
+
+        function prevIframe() {
+            currentIframe = (currentIframe - 1 + iframes.length) % iframes.length;
+            showIframe(currentIframe);
+        }
+    </script>
 </body>
 </html>
