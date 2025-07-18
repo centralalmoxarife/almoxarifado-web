@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -66,9 +27,9 @@
             background-repeat: no-repeat;
             background-position: center;
             background-size: 50%;
-            opacity: 0.9; /* Increased for visibility */
-            z-index: 999; /* High z-index to overlay content */
-            pointer-events: none; /* Prevent interaction */
+            opacity: 0.3;
+            z-index: 999;
+            pointer-events: none;
         }
         .topbar {
             position: fixed;
@@ -82,7 +43,7 @@
             justify-content: space-between;
             padding: 0 10px;
             box-sizing: border-box;
-            z-index: 2000;
+            z-index: 3000; /* Aumentado para garantir que fique acima do iframe */
             display: none;
         }
         .topbar.active {
@@ -126,7 +87,7 @@
             display: none;
             flex-direction: column;
             width: 120px;
-            z-index: 3000;
+            z-index: 3100;
         }
         .dropdown-menu.active {
             display: flex;
@@ -153,7 +114,7 @@
             z-index: 1000;
         }
         .login-box {
-            background: rgba(26, 37, 38, 0.95); /* Increased opacity for readability */
+            background: rgba(26, 37, 38, 0.95);
             backdrop-filter: blur(5px);
             padding: 30px;
             border-radius: 10px;
@@ -164,7 +125,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             position: relative;
             color: #ffffff;
-            z-index: 1001; /* Above watermark */
+            z-index: 1001;
         }
         .login-logos {
             display: flex;
@@ -282,7 +243,7 @@
             padding: 15px;
             transition: left 0.3s ease;
             box-sizing: border-box;
-            z-index: 2000; /* Above watermark */
+            z-index: 2000;
         }
         .sidebar.active {
             left: 0;
@@ -301,17 +262,33 @@
         .menu a.btn-hover:hover {
             background-color: #34495E;
         }
+        .submenu {
+            display: none;
+            padding-left: 20px;
+            margin-top: 4px;
+        }
+        .submenu.active {
+            display: block;
+        }
+        .submenu a {
+            background-color: #34495E;
+            font-size: 14px;
+            padding: 10px;
+        }
+        .submenu a.btn-hover:hover {
+            background-color: #4A6076;
+        }
         .content {
             margin-left: 0;
             padding: 0;
             flex: 1;
             transition: margin-left 0.3s ease;
-            margin-top: 40px;
+            margin-top: 40px; /* Espaço para a topbar */
             display: none;
             box-sizing: border-box;
             height: calc(100vh - 40px);
-            overflow: hidden;
-            z-index: 1001; /* Above watermark */
+            overflow: hidden; /* Evita vazamento do fundo */
+            z-index: 1001;
         }
         .content.active {
             display: block;
@@ -320,26 +297,35 @@
             margin-left: 200px;
         }
         .agenda {
-            background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent for watermark visibility */
+            background-color: #fff; /* Fundo branco para evitar vazamento */
             padding: 0;
+            margin: 0;
             border-radius: 0;
             box-shadow: none;
             position: relative;
-            overflow: visible;
             width: 100%;
             height: 100%;
             box-sizing: border-box;
-            z-index: 1001; /* Above watermark */
+            z-index: 1001;
+            overflow: hidden; /* Garante que o fundo não vaze */
         }
         .agenda > div {
             width: 100%;
             height: 100%;
+            margin: 0;
+            padding: 0;
         }
         .agenda iframe {
             width: 100%;
             height: 100%;
             border: 0;
-            border-radius: 0;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            top: 0; /* Alinha exatamente no topo */
+            left: 0;
+            box-sizing: border-box;
+            background-color: #fff; /* Fundo branco para evitar vazamento */
         }
         .carousel {
             position: relative;
@@ -353,12 +339,15 @@
             width: 100%;
             height: 100%;
             border: 0;
+            margin: 0;
+            padding: 0;
             border-radius: 0;
             position: absolute;
             top: 0;
             left: 0;
             display: none;
             visibility: visible;
+            background-color: #fff;
         }
         .carousel iframe.active {
             display: block;
@@ -373,7 +362,7 @@
             padding: 15px;
             cursor: pointer;
             font-size: 24px;
-            z-index: 2000; /* Above watermark */
+            z-index: 2000;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -404,13 +393,16 @@
             color: white;
             flex-direction: column;
             gap: 10px;
-            z-index: 1500; /* Above watermark, below interactive elements */
+            z-index: 1500;
         }
         .calendar-container, .form-container {
             width: 100%;
             height: 100%;
             position: relative;
             border: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
         .calendar-container iframe, .form-container iframe {
             border: 0;
@@ -419,12 +411,15 @@
             margin: 0;
             padding: 0;
             box-shadow: none;
-            background: transparent;
+            background: #fff;
             width: 100%;
             height: 100%;
             min-width: 100%;
             min-height: 100%;
             display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
         .sidebar-toggle {
             position: fixed;
@@ -443,7 +438,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 2000; /* Above watermark */
+            z-index: 2000;
             transition: background 0.3s;
             border: 1px solid #2C3E50;
         }
@@ -474,7 +469,7 @@
             background-color: #f2f2f2;
             position: sticky;
             top: 0;
-            z-index: 1500; /* Above watermark */
+            z-index: 1500;
         }
         #dataTable tr:nth-child(even) {
             background-color: #f9f9f9;
@@ -491,7 +486,7 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         .birthday-calendar {
-            background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent for watermark visibility */
+            background-color: rgba(255, 255, 255, 0.95);
             background-size: cover;
             background-attachment: fixed;
             background-position: center;
@@ -505,7 +500,7 @@
             position: relative;
             border: 1px solid #2C3E50;
             border-radius: 10px;
-            z-index: 1001; /* Above watermark */
+            z-index: 1001;
         }
         .birthday-calendar h1 {
             text-align: center;
@@ -561,7 +556,7 @@
             transform: rotate(2deg);
             margin-right: 0.6rem;
             cursor: pointer;
-            z-index: 1002; /* Above watermark */
+            z-index: 1002;
         }
         .birthday img:nth-child(odd) {
             transform: rotate(-2deg);
@@ -581,7 +576,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 4000; /* Above watermark */
+            z-index: 4000;
             cursor: pointer;
         }
         .fullscreen-image {
@@ -602,7 +597,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             width: 90%;
             max-width: 300px;
-            z-index: 3000; /* Above watermark */
+            z-index: 3000;
             box-sizing: border-box;
             border: 1px solid #2C3E50;
         }
@@ -627,7 +622,7 @@
             color: #fff;
             font-size: clamp(0.8rem, 2.5vw, 1rem);
             cursor: pointer;
-            z-index: 3001; /* Above watermark */
+            z-index: 3001;
         }
         @media (max-width: 900px) {
             .calendar-grid {
@@ -736,6 +731,42 @@
             }
             return gk_fileData[filename] || "";
         }
+
+        function parseCSV(csvText) {
+            const rows = [];
+            let currentRow = [];
+            let currentField = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+
+                if (char === '"') {
+                    insideQuotes = !insideQuotes;
+                } else if (char === ',' && !insideQuotes) {
+                    currentRow.push(currentField.trim());
+                    currentField = '';
+                } else if (char === '\n' && !insideQuotes) {
+                    currentRow.push(currentField.trim());
+                    if (currentRow.some(filledCell)) {
+                        rows.push(currentRow);
+                    }
+                    currentRow = [];
+                    currentField = '';
+                } else {
+                    currentField += char;
+                }
+            }
+
+            if (currentField || currentRow.length) {
+                currentRow.push(currentField.trim());
+                if (currentRow.some(filledCell)) {
+                    rows.push(currentRow);
+                }
+            }
+
+            return rows;
+        }
     </script>
 
     <div class="topbar" id="topbar">
@@ -813,15 +844,23 @@
                 { text: 'Dashboard fundos', url: 'https://lookerstudio.google.com/embed/reporting/cde54bf6-cff4-4d3d-a416-58765cd2c894/page/Z0wDF' },
                 { text: 'Dashboard contratos', url: 'https://lookerstudio.google.com/embed/reporting/74748bad-da33-4d1a-9faa-5c8502e76264/page/lxfEF' },
                 { text: 'Solicitação/memo', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfWcVKmB0I75oSL3fj2qAt3shtOZ97AgTRdW_7ehH0Bz90iQA/viewform?embedded=true' },
-                { text: 'Memos Lançados', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1844955489&single=true&widget=true&headers=false' }
+                { text: 'Memos Lançados', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1844955489&single=true&widget=true&headers=false' },
+                { text: 'Câmera IP Intelbras', url: 'http://10.131.176.13/' }
             ],
             contratos: [
                 { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
                 { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
-                { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true' },
-                { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true' },
-                { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1207851381&single=true&widget=true&headers=false' },
-                { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1850767781&single=true&widget=true&headers=false' }
+                { text: 'Contratos', submenu: [
+                    { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdUjLewIPNNxu32XeaqE1k94qInzw1KMvxsM_ww1_CKTRwNjQ/viewform?embedded=true' },
+                    { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdjdAg6n-lAOO9fLWOzHDhj4-SluXFOJJNRXE8St6cS5wfn9g/viewform?embedded=true' },
+                    { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1207851381&single=true&widget=true&headers=false' },
+                    { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1850767781&single=true&widget=true&headers=false' }
+                ]},
+                { text: 'Água', submenu: [
+                    { text: 'Entrada - Água', url: 'https://docs.google.com/forms/d/e/1FAIpQLSc10ItjiF5MHW0tOQ4W0lMTOJhK54ge5yh0TmumzFscajM/viewform?embedded=true' },
+                    { text: 'Saída - Água', url: 'https://docs.google.com/forms/d/e/1FAIpQLSe1Z_uyTShrd-gXnbMB3gDPBYzgaIrnXcRuNVQfs4DyKoo/viewform?embedded=true' }
+                ]},
+                { text: 'Câmera IP Intelbras', url: 'http://10.131.176.13/' }
             ],
             fundos: [
                 { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
@@ -829,13 +868,15 @@
                 { text: 'Entrada', url: 'https://docs.google.com/forms/d/e/1FAIpQLScLJYX5PFWfah-b0K6aF-hH8oO4GNzmzoeiywcptSN83SvoJw/viewform?embedded=true' },
                 { text: 'Saída', url: 'https://docs.google.com/forms/d/e/1FAIpQLSftaxIc5VOK6K8AB-f5bcz5YLdMqmaA6BKYwY4tWfN17lz-_w/viewform?embedded=true' },
                 { text: 'Lançamentos - Entrada', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=1160054884&single=true&widget=true&headers=false' },
-                { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=530975228&single=true&widget=true&headers=false' }
+                { text: 'Lançamentos - Saída', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDrOq9QJjLjm825s9w7E1Kg-tDR5ONxKTsh-WH6FYdo9tPU_sfLAH4JrKFfendkdx3gTUFUP9guaBL/pubhtml?gid=530975228&single=true&widget=true&headers=false' },
+                { text: 'Câmera IP Intelbras', url: 'http://10.131.176.13/' }
             ],
             support: [
                 { text: 'Email', url: 'https://mail.parauapebas.pa.gov.br/' },
                 { text: 'Agenda', url: 'https://calendar.google.com/calendar/embed?src=31521d58fdb5f7855743d3410dfa9d44390e0d314cd1aa38dd365e8c8002a458%40group.calendar.google.com&ctz=America%2FBelem' },
                 { text: 'Form controle A4', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdVA4gBTK2rsN_w7ptw4hia48hLtebmIiX1ICzTdGfOzwZOEA/viewform?embedded=true' },
-                { text: 'Planilha controle A4', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJk7K7VJZ28FqEjUeiwVCSvqyHibc7LRaaR2WGJZTHnZhtyqn-W6YLHp1MuMZOeR7v8uBiTW9_tEh_/pubhtml' }
+                { text: 'Planilha controle A4', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJk7K7VJZ28FqEjUeiwVCSvqyHibc7LRaaR2WGJZTHnZhtyqn-W6YLHp1MuMZOeR7v8uBiTW9_tEh_/pubhtml' },
+                { text: 'Câmera IP Intelbras', url: 'http://10.131.176.13/' }
             ]
         };
 
@@ -848,6 +889,7 @@
 
         let selectedUser = null;
         const jsConfetti = new JSConfetti();
+        let currentIframeIndex = 0;
 
         function clearAgendaContent() {
             const agenda = document.getElementById('agenda');
@@ -1020,7 +1062,12 @@
                 profileName.classList.add('active');
                 
                 updateMenu(selectedUser);
-                loadCalendar(selectedUser); // Load calendar on login
+                if (selectedUser === 'admin') {
+                    document.getElementById('carousel').style.display = 'block';
+                    showIframe(0);
+                } else {
+                    loadCalendar(selectedUser);
+                }
                 spinner.style.display = 'none';
             }, 500);
         }
@@ -1031,26 +1078,58 @@
                 menu.innerHTML = '';
 
                 menuOptions[username].forEach(option => {
+                    const menuItem = document.createElement('div');
                     const link = document.createElement('a');
                     link.href = '#';
                     link.textContent = option.text;
                     link.classList.add('btn-hover');
                     link.setAttribute('role', 'menuitem');
                     link.setAttribute('aria-label', option.text);
+
                     if (option.text === 'Agenda') {
                         link.onclick = function () {
                             loadCalendar(username);
                         };
-                    } else if (option.text === 'Email') {
+                    } else if (option.text === 'Email' || option.text === 'Câmera IP Intelbras') {
                         link.onclick = function () {
                             window.open(option.url, '_blank');
+                            if (option.text === 'Câmera IP Intelbras') {
+                                alert('Use as credenciais: Login: admin, Senha: semad@124578');
+                            }
+                        };
+                    } else if (option.text === 'Contratos' || option.text === 'Água') {
+                        link.onclick = function (e) {
+                            e.preventDefault();
+                            const submenu = menuItem.querySelector('.submenu');
+                            submenu.classList.toggle('active');
                         };
                     } else {
                         link.onclick = function () {
                             loadForm(option.url);
                         };
                     }
-                    menu.appendChild(link);
+
+                    menuItem.appendChild(link);
+
+                    if (option.submenu) {
+                        const submenu = document.createElement('div');
+                        submenu.className = 'submenu';
+                        option.submenu.forEach(subOption => {
+                            const subLink = document.createElement('a');
+                            subLink.href = '#';
+                            subLink.textContent = subOption.text;
+                            subLink.classList.add('btn-hover');
+                            subLink.setAttribute('role', 'menuitem');
+                            subLink.setAttribute('aria-label', subOption.text);
+                            subLink.onclick = function () {
+                                loadForm(subOption.url);
+                            };
+                            submenu.appendChild(subLink);
+                        });
+                        menuItem.appendChild(submenu);
+                    }
+
+                    menu.appendChild(menuItem);
                 });
             } catch (error) {
                 console.error('Erro ao atualizar menu:', error);
@@ -1065,242 +1144,109 @@
             loadIframe('calendar-container', calendarUrls[username], 'calendar-iframe', { scrolling: 'no', frameborder: '0' });
         }
 
-        function parseCSV(csvText) {
-            const rows = [];
-            let currentRow = [];
-            let currentField = '';
-            let insideQuotes = false;
-
-            for (let i = 0; i < csvText.length; i++) {
-                const char = csvText[i];
-
-                if (char === '"') {
-                    insideQuotes = !insideQuotes;
-                } else if (char === ',' && !insideQuotes) {
-                    currentRow.push(currentField.trim());
-                    currentField = '';
-                } else if (char === '\n' && !insideQuotes) {
-                    currentRow.push(currentField.trim());
-                    if (currentRow.length > 1) rows.push(currentRow);
-                    currentRow = [];
-                    currentField = '';
-                } else {
-                    currentField += char;
-                }
-            }
-            if (currentField || currentRow.length > 0) {
-                currentRow.push(currentField.trim());
-                if (currentRow.length > 1) rows.push(currentRow);
-            }
-            return rows;
+        function showIframe(index) {
+            const iframes = document.querySelectorAll('.carousel iframe');
+            iframes.forEach((iframe, i) => {
+                iframe.classList.toggle('active', i === index);
+            });
+            currentIframeIndex = index;
         }
 
-        function parseDateBR(dateStr) {
-            try {
-                const [date, time] = dateStr.split(' ');
-                const [day, month, year] = date.split('/').map(Number);
-                const [hours, minutes, seconds] = time.split(':').map(Number);
-                return new Date(year, month - 1, day, hours, minutes, seconds);
-            } catch (e) {
-                console.error('Erro ao parsear data:', dateStr, e);
-                return new Date(0);
-            }
+        function prevIframe() {
+            const iframes = document.querySelectorAll('.carousel iframe');
+            currentIframeIndex = (currentIframeIndex - 1 + iframes.length) % iframes.length;
+            showIframe(currentIframeIndex);
         }
 
-        function logout() {
-            try {
-                localStorage.removeItem('userToken');
-                localStorage.removeItem('username');
-                localStorage.removeItem('lastUser');
-                const loginScreen = document.querySelector('#login-container');
-                const sidebar = document.querySelector('#sidebar');
-                const content = document.querySelector('#content');
-                const topbar = document.querySelector('#topbar');
-                const dropdownMenu = document.querySelector('#dropdown-menu');
-                const profileName = document.querySelector('#profile-name');
-                
-                loginScreen.style.display = 'flex';
-                sidebar.classList.remove('active');
-                content.classList.remove('active');
-                topbar.classList.remove('active');
-                dropdownMenu.classList.remove('active');
-                profileName.classList.remove('active');
-                
-                updateLoginScreen();
-            } catch (error) {
-                console.error('Erro no logout:', error);
-                alert('Ocorreu um erro ao sair. Tente novamente.');
-            }
-        }
-
-        function toggleDropdown() {
-            const dropdownMenu = document.querySelector('#dropdown-menu');
-            dropdownMenu.classList.toggle('active');
-            if (dropdownMenu.classList.contains('active')) {
-                dropdownMenu.querySelector('a').focus();
-            }
+        function nextIframe() {
+            const iframes = document.querySelectorAll('.carousel iframe');
+            currentIframeIndex = (currentIframeIndex + 1) % iframes.length;
+            showIframe(currentIframeIndex);
         }
 
         function hideLoading() {
-            console.log('Conteúdo carregado com sucesso');
             document.getElementById('loading-overlay').style.display = 'none';
         }
 
         function handleIframeError() {
-            console.error('Erro ao carregar iframe');
-            const overlay = document.getElementById('loading-overlay');
-            overlay.innerHTML = '<span>Erro ao carregar o conteúdo. Verifique a conexão ou a URL.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
-            overlay.style.display = 'flex';
+            document.getElementById('loading-overlay').style.display = 'flex';
         }
 
         function reloadIframe() {
-            console.log('Tentando recarregar iframe...');
-            const formIframe = document.getElementById('form-iframe');
-            const calendarIframe = document.getElementById('calendar-iframe');
-            const overlay = document.getElementById('loading-overlay');
-
-            if (!formIframe && !calendarIframe) {
-                console.error('Nenhum iframe encontrado para recarregar');
-                overlay.innerHTML = '<span>Nenhum conteúdo carregado para atualizar.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
-                overlay.style.display = 'flex';
-                return;
+            const activeIframe = document.querySelector('.carousel iframe.active') || document.querySelector('.agenda iframe');
+            if (activeIframe) {
+                activeIframe.src = activeIframe.src;
             }
+        }
 
-            let iframeToReload = formIframe || calendarIframe;
-            let originalUrl = iframeToReload.src.split('&t=')[0].split('?t=')[0];
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.classList.toggle('active');
+        }
 
-            if (!originalUrl || !originalUrl.startsWith('https://')) {
-                console.error('URL do iframe inválida:', originalUrl);
-                overlay.innerHTML = '<span>Erro: URL inválida. Contate o administrador.</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
-                overlay.style.display = 'flex';
-                return;
-            }
-
-            console.log('Recarregando iframe com URL:', originalUrl);
-            iframeToReload.src = originalUrl + (originalUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
-            overlay.innerHTML = '<span>Carregando...</span><button onclick="reloadIframe()" style="padding: 5px 10px; background: #1A2526; color: white; border: none; border-radius: 5px; cursor: pointer;">Tentar Novamente</button>';
-            overlay.style.display = 'flex';
+        function logout() {
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('lastUser');
+            document.getElementById('login-container').style.display = 'flex';
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('content').classList.remove('active');
+            document.getElementById('topbar').classList.remove('active');
+            document.getElementById('profile-name').classList.remove('active');
+            document.getElementById('menu').innerHTML = '';
+            updateLoginScreen();
         }
 
         function updateLoginScreen() {
-            console.log('Atualizando tela de login...');
             const userList = document.getElementById('user-list');
             const loginForm = document.getElementById('login-form');
-            if (!userList || !loginForm) {
-                console.error('Elementos #user-list ou #login-form não encontrados');
-                return;
-            }
             userList.innerHTML = '';
             loginForm.classList.remove('active');
-            selectedUser = null;
-
             Object.keys(users).forEach(username => {
                 const userDiv = document.createElement('div');
-                userDiv.classList.add('user-option');
+                userDiv.className = 'user-option';
                 userDiv.innerHTML = `
-                    <img class="user-photo" src="${users[username].profilePhoto}" alt="Foto de ${users[username].name}" onerror="this.src='https://via.placeholder.com/50?text=Foto+Indisponível';">
+                    <img src="${users[username].profilePhoto}" class="user-photo" alt="${users[username].name}" onerror="this.src='https://via.placeholder.com/50?text=Logo+Indisponível';">
                     <span class="user-name">${users[username].name}</span>
                 `;
                 userDiv.onclick = () => {
                     selectedUser = username;
-                    userList.innerHTML = `
-                        <div class="user-option">
-                            <img class="user-photo" src="${users[username].profilePhoto}" alt="Foto de ${users[username].name}" onerror="this.src='https://via.placeholder.com/50?text=Foto+Indisponível';">
-                            <span class="user-name">${users[username].name}</span>
-                        </div>
-                    `;
+                    userList.innerHTML = '';
                     loginForm.classList.add('active');
                     document.getElementById('password').focus();
                 };
                 userList.appendChild(userDiv);
             });
-            console.log('Tela de login atualizada com', Object.keys(users).length, 'usuários');
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM carregado, verificando estado de login...');
+        document.getElementById('sidebar-toggle').onclick = () => {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('content').classList.toggle('active');
+        };
+
+        window.onload = () => {
             const token = localStorage.getItem('userToken');
-            const username = localStorage.getItem('username');
-            const loginScreen = document.querySelector('#login-container');
-            const sidebar = document.querySelector('#sidebar');
-            const content = document.querySelector('#content');
-            const topbar = document.querySelector('#topbar');
-            const profileLogo = document.querySelector('#profile-logo');
-            const profileName = document.querySelector('#profile-name');
-
-            console.log('Token:', token, 'Username:', username);
-            if (!loginScreen) {
-                console.error('login-container não encontrado!');
-                return;
-            }
-
-            if (token && username && users[username] && users[username].token === token) {
-                console.log('Usuário já logado:', username);
-                loginScreen.style.display = 'none';
-                sidebar.classList.add('active');
-                content.classList.add('active');
-                topbar.classList.add('active');
-                profileLogo.src = users[username].profilePhoto;
-                profileLogo.onerror = () => profileLogo.src = 'https://via.placeholder.com/30?text=Logo+Indisponível';
-                profileName.textContent = users[username].name;
-                profileName.classList.add('active');
-                updateMenu(username);
-                loadCalendar(username); // Load calendar on page load for logged-in user
+            const lastUser = localStorage.getItem('lastUser');
+            if (token && lastUser && users[lastUser] && users[lastUser].token === token) {
+                selectedUser = lastUser;
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('sidebar').classList.add('active');
+                document.getElementById('content').classList.add('active');
+                document.getElementById('topbar').classList.add('active');
+                document.getElementById('profile-logo').src = users[selectedUser].profilePhoto;
+                document.getElementById('profile-name').textContent = users[selectedUser].name;
+                document.getElementById('profile-name').classList.add('active');
+                updateMenu(selectedUser);
+                if (selectedUser === 'admin') {
+                    document.getElementById('carousel').style.display = 'block';
+                    showIframe(0);
+                } else {
+                    loadCalendar(selectedUser);
+                }
             } else {
-                console.log('Nenhum usuário logado, exibindo tela de login');
-                localStorage.removeItem('userToken');
-                localStorage.removeItem('username');
-                localStorage.removeItem('lastUser');
-                loginScreen.style.display = 'flex';
-                sidebar.classList.remove('active');
-                content.classList.remove('active');
-                topbar.classList.remove('active');
-                profileName.classList.remove('active');
                 updateLoginScreen();
             }
-
-            document.getElementById('sidebar-toggle').addEventListener('click', () => {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('active');
-            });
-
-            document.querySelector('#dropdown-menu').addEventListener('keydown', (e) => {
-                const links = Array.from(document.querySelectorAll('.dropdown-menu a'));
-                const current = document.activeElement;
-                const index = links.indexOf(current);
-                if (e.key === 'ArrowDown' && index < links.length - 1) {
-                    links[index + 1].focus();
-                    e.preventDefault();
-                } else if (e.key === 'ArrowUp' && index > 0) {
-                    links[index - 1].focus();
-                    e.preventDefault();
-                }
-            });
-        });
-
-        let currentIframe = 0;
-        const iframes = ['iframe1', 'iframe2'];
-
-        function showIframe(index) {
-            iframes.forEach((id, i) => {
-                const iframe = document.getElementById(id);
-                if (i === index) {
-                    iframe.classList.add('active');
-                } else {
-                    iframe.classList.remove('active');
-                }
-            });
-        }
-
-        function nextIframe() {
-            currentIframe = (currentIframe + 1) % iframes.length;
-            showIframe(currentIframe);
-        }
-
-        function prevIframe() {
-            currentIframe = (currentIframe - 1 + iframes.length) % iframes.length;
-            showIframe(currentIframe);
-        }
+        };
     </script>
 </body>
 </html>
